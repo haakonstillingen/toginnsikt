@@ -2,6 +2,11 @@
 
 ## Completed Tasks
 
+### #6 GitHub + Cloud Build Integration ✅ COMPLETED
+- Set up automatic deployment pipeline from GitHub to Google Cloud Run
+- Connected repository: haakonstillingen/toginnsikt
+- Trigger: togforsinkelse-deploy (pushes to main branch)
+
 ### #1 Set up necessary logic to explore Entur endpoints ✅ COMPLETED
 
 **Summary of accomplishments:**
