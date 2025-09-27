@@ -6,6 +6,8 @@
 - Set up automatic deployment pipeline from GitHub to Google Cloud Run
 - Connected repository: haakonstillingen/toginnsikt
 - Trigger: togforsinkelse-deploy (pushes to main branch)
+- **Trigger ID**: e816b903-015d-4000-bc31-5962a2ccde04
+- **Status**: Active and ready for automatic deployments
 
 ### #1 Set up necessary logic to explore Entur endpoints ✅ COMPLETED
 
