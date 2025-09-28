@@ -38,7 +38,7 @@ class CommuteRoute:
     target_station_id: str
     target_station_name: str
     final_destination_pattern: str
-    direction: str  # 'morning' or 'afternoon'
+    direction: str  # 'westbound' or 'eastbound'
 
 @dataclass
 class PlannedDeparture:

@@ -32,7 +32,7 @@ COMMUTE_ROUTES = [
         'target_station_id': 'NSR:StopPlace:337',
         'target_station_name': 'Oslo S',
         'final_destination_pattern': 'Lysaker|Stabekk',
-        'direction': 'morning'
+        'direction': 'westbound'
     },
     {
         'route_name': 'Afternoon Commute',
@@ -41,7 +41,7 @@ COMMUTE_ROUTES = [
         'target_station_id': 'NSR:StopPlace:59638',
         'target_station_name': 'Myrvoll',
         'final_destination_pattern': 'Ski',
-        'direction': 'afternoon'
+        'direction': 'eastbound'
     }
 ]
 
