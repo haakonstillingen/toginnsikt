@@ -1,0 +1,77 @@
+name: Data Quality Monitoring
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor-data-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Check data quality
+        env:
+          CLOUD_SQL_CONNECTION_NAME: ${{ secrets.CLOUD_SQL_CONNECTION_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          python -c "
+          import sys
+          sys.path.append('.')
+          from enhanced_commute_collector_cloud import EnhancedCommuteCollector
+          import os
+          
+          # Initialize collector
+          collector = EnhancedCommuteCollector()
+          
+          # Check data quality metrics
+          metrics = collector.get_data_quality_metrics()
+          
+          print(f'Success Rate: {metrics.get(\"success_rate\", 0):.2%}')
+          print(f'Total Records: {metrics.get(\"total_records\", 0)}')
+          print(f'Error Rate: {metrics.get(\"error_rate\", 0):.2%}')
+          
+          # Create issue if success rate is too low
+          if metrics.get('success_rate', 0) < 0.85:
+              print('ALERT: Success rate below 85%')
+              sys.exit(1)
+          "
+
+      - name: Create data quality issue if needed
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Check if there's already an open data quality issue
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: 'data-quality,alert',
+              state: 'open'
+            });
+            
+            if (issues.data.length === 0) {
+              // Create new data quality alert issue
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Data Quality Alert: Low Collection Success Rate',
+                body: `🚨 **Data Quality Alert**\n\nCollection success rate has dropped below 85%.\n\n**Action Required:**\n- Check Cloud Scheduler status\n- Review collection logs\n- Investigate API issues\n\n**Timestamp:** ${new Date().toISOString()}`,
+                labels: ['data-quality', 'alert', 'high-priority']
+              });
+              console.log('Created data quality alert issue');
+            } else {
+              console.log('Data quality issue already exists');
+            }

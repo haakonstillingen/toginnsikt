@@ -1,0 +1,71 @@
+name: Test Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-workflows:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test workflow execution
+        run: |
+          echo "✅ GitHub Actions workflows are working!"
+          echo "Repository: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
+          
+          # Test if we can access secrets (without revealing them)
+          if [ -n "${{ secrets.GCP_PROJECT_ID }}" ]; then
+            echo "✅ GCP_PROJECT_ID secret is accessible"
+          else
+            echo "❌ GCP_PROJECT_ID secret is not accessible"
+          fi
+          
+          if [ -n "${{ secrets.CLOUD_SQL_CONNECTION_NAME }}" ]; then
+            echo "✅ CLOUD_SQL_CONNECTION_NAME secret is accessible"
+          else
+            echo "❌ CLOUD_SQL_CONNECTION_NAME secret is not accessible"
+          fi
+          
+          if [ -n "${{ secrets.DB_PASSWORD }}" ]; then
+            echo "✅ DB_PASSWORD secret is accessible"
+          else
+            echo "❌ DB_PASSWORD secret is not accessible"
+          fi
+
+      - name: Test issue creation
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Test if we can access GitHub API
+            const repo = await github.rest.repos.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            console.log(`✅ Successfully accessed repository: ${repo.data.full_name}`);
+            console.log(`✅ Repository description: ${repo.data.description}`);
+            console.log(`✅ Repository visibility: ${repo.data.visibility}`);
+            
+            // Test if we can list issues
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open'
+            });
+            
+            console.log(`✅ Found ${issues.data.length} open issues`);
+            
+            // Test if we can list labels
+            const labels = await github.rest.issues.listLabelsForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            
+            console.log(`✅ Found ${labels.data.length} labels`);
+            console.log(`✅ Labels: ${labels.data.map(l => l.name).join(', ')}`);

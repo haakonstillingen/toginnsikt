@@ -1,0 +1,95 @@
+name: Project Management Automation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  issues:
+    types: [opened, closed, labeled, unlabeled]
+  issue_comment:
+    types: [created, edited]
+
+jobs:
+  update-project-board:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update project board on push
+        if: github.event_name == 'push'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Auto-move issues based on commit messages
+            const commitMessage = context.payload.head_commit.message;
+            const issueNumber = commitMessage.match(/#(\d+)/);
+            
+            if (issueNumber) {
+              const issueNum = issueNumber[1];
+              console.log(`Found issue reference: #${issueNum}`);
+              
+              // Move issue to "In Progress" if it's in "Backlog"
+              // This is a basic example - you can customize based on your needs
+              console.log(`Would move issue #${issueNum} to In Progress`);
+            }
+
+      - name: Update project board on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const issueNumbers = pr.body.match(/#(\d+)/g);
+            
+            if (issueNumbers) {
+              issueNumbers.forEach(issueRef => {
+                const issueNum = issueRef.replace('#', '');
+                console.log(`Found issue reference: #${issueNum}`);
+                // Move to "Review" column when PR is created
+                console.log(`Would move issue #${issueNum} to Review`);
+              });
+            }
+
+  handle-issues:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' || github.event_name == 'issue_comment'
+    steps:
+      - name: Handle issue events
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const action = context.payload.action;
+            
+            console.log(`Issue #${issue.number} - Action: ${action}`);
+            
+            // Auto-label based on issue content
+            if (action === 'opened') {
+              const labels = [];
+              
+              if (issue.title.toLowerCase().includes('bug') || issue.body.toLowerCase().includes('bug')) {
+                labels.push('bug');
+              }
+              if (issue.title.toLowerCase().includes('urgent') || issue.body.toLowerCase().includes('urgent')) {
+                labels.push('urgent');
+              }
+              if (issue.title.toLowerCase().includes('mobile') || issue.body.toLowerCase().includes('mobile')) {
+                labels.push('mobile');
+              }
+              if (issue.title.toLowerCase().includes('dashboard') || issue.body.toLowerCase().includes('dashboard')) {
+                labels.push('dashboard');
+              }
+              
+              if (labels.length > 0) {
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: labels
+                });
+                console.log(`Added labels: ${labels.join(', ')}`);
+              }
+            }

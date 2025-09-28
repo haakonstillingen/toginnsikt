@@ -1,0 +1,61 @@
+name: Issue Templates
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  apply-issue-templates:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply issue templates
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = issue.body.toLowerCase();
+            
+            // Auto-assign labels based on content
+            const labels = [];
+            
+            if (title.includes('bug') || body.includes('bug') || body.includes('error')) {
+              labels.push('bug');
+            }
+            if (title.includes('feature') || body.includes('feature') || body.includes('enhancement')) {
+              labels.push('enhancement');
+            }
+            if (title.includes('urgent') || body.includes('urgent') || body.includes('critical')) {
+              labels.push('urgent');
+            }
+            if (title.includes('mobile') || body.includes('mobile')) {
+              labels.push('mobile');
+            }
+            if (title.includes('dashboard') || body.includes('dashboard')) {
+              labels.push('dashboard');
+            }
+            if (title.includes('data') || body.includes('data')) {
+              labels.push('data-quality');
+            }
+            if (title.includes('collection') || body.includes('collection')) {
+              labels.push('data-collection');
+            }
+            
+            // Add priority labels
+            if (title.includes('high') || body.includes('high priority')) {
+              labels.push('high-priority');
+            } else if (title.includes('medium') || body.includes('medium priority')) {
+              labels.push('medium-priority');
+            } else if (title.includes('low') || body.includes('low priority')) {
+              labels.push('low-priority');
+            }
+            
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels
+              });
+              console.log(`Applied labels: ${labels.join(', ')}`);
+            }
