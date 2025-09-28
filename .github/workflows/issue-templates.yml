@@ -3,6 +3,7 @@ name: Issue Templates
 on:
   issues:
     types: [opened]
+  workflow_dispatch:
 
 jobs:
   apply-issue-templates:
