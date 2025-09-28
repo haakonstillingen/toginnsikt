@@ -59,9 +59,9 @@ export async function GET(request: NextRequest) {
     // Build route filter
     let routeFilter = '';
     if (route === 'myrvoll-oslo') {
-      routeFilter = "AND cr.direction = 'morning'";
+      routeFilter = "AND cr.direction = 'westbound'";
     } else if (route === 'oslo-ski') {
-      routeFilter = "AND cr.direction = 'afternoon'";
+      routeFilter = "AND cr.direction = 'eastbound'";
     }
     
     // Get classification data - hourly for 1d, daily for 7d+
