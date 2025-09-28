@@ -1,0 +1,352 @@
+
+> toginnsikt-dashboard@0.1.0 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/hakonstillingen/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/package-lock.json
+
+   ▲ Next.js 15.5.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.1.155:3000
+
+ ✓ Starting...
+ ✓ Ready in 1323ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ○ Compiling / ...
+ ⨯ ./src/app/page.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m           )'
+     ,-[[36;1;4m/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/src/app/page.tsx[0m:212:1]
+ [2m209[0m |                       )}
+ [2m210[0m |                     </div>
+ [2m211[0m |                   </div>
+ [2m212[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m             </div>
+ [2m213[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m           </nav>
+ [2m214[0m |     
+ [2m215[0m |               {/* Footer */}
+ [2m216[0m |               <div className="border-t border-border pt-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/page.tsx
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ./src/app/page.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m           )'
+     ,-[[36;1;4m/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/src/app/page.tsx[0m:212:1]
+ [2m209[0m |                       )}
+ [2m210[0m |                     </div>
+ [2m211[0m |                   </div>
+ [2m212[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m             </div>
+ [2m213[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m           </nav>
+ [2m214[0m |     
+ [2m215[0m |               {/* Footer */}
+ [2m216[0m |               <div className="border-t border-border pt-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/page.tsx
+ ⨯ ./src/app/page.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m           )'
+     ,-[[36;1;4m/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/src/app/page.tsx[0m:212:1]
+ [2m209[0m |                       )}
+ [2m210[0m |                     </div>
+ [2m211[0m |                   </div>
+ [2m212[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m             </div>
+ [2m213[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m           </nav>
+ [2m214[0m |     
+ [2m215[0m |               {/* Footer */}
+ [2m216[0m |               <div className="border-t border-border pt-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/page.tsx
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ./src/app/page.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m           )'
+     ,-[[36;1;4m/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/src/app/page.tsx[0m:212:1]
+ [2m209[0m |                       )}
+ [2m210[0m |                     </div>
+ [2m211[0m |                   </div>
+ [2m212[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m             </div>
+ [2m213[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m           </nav>
+ [2m214[0m |     
+ [2m215[0m |               {/* Footer */}
+ [2m216[0m |               <div className="border-t border-border pt-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/page.tsx
+ GET / 500 in 190ms
+ GET / 500 in 15ms
+ GET / 500 in 12ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ./src/app/page.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m           )'
+     ,-[[36;1;4m/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/src/app/page.tsx[0m:212:1]
+ [2m209[0m |                       )}
+ [2m210[0m |                     </div>
+ [2m211[0m |                   </div>
+ [2m212[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m             </div>
+ [2m213[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m           </nav>
+ [2m214[0m |     
+ [2m215[0m |               {/* Footer */}
+ [2m216[0m |               <div className="border-t border-border pt-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/page.tsx
+ ⨯ ./src/app/page.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m           )'
+     ,-[[36;1;4m/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/src/app/page.tsx[0m:212:1]
+ [2m209[0m |                       )}
+ [2m210[0m |                     </div>
+ [2m211[0m |                   </div>
+ [2m212[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m             </div>
+ [2m213[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m           </nav>
+ [2m214[0m |     
+ [2m215[0m |               {/* Footer */}
+ [2m216[0m |               <div className="border-t border-border pt-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/page.tsx
+ GET / 500 in 222ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ./src/app/page.tsx
+Error:   [31mx[0m Expected '</', got 'jsx text (
+  [31m|[0m           )'
+     ,-[[36;1;4m/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/src/app/page.tsx[0m:212:1]
+ [2m209[0m |                       )}
+ [2m210[0m |                     </div>
+ [2m211[0m |                   </div>
+ [2m212[0m | [35;1m,[0m[35;1m-[0m[35;1m>[0m             </div>
+ [2m213[0m | [35;1m`[0m[35;1m-[0m[35;1m>[0m           </nav>
+ [2m214[0m |     
+ [2m215[0m |               {/* Footer */}
+ [2m216[0m |               <div className="border-t border-border pt-4">
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/page.tsx
+ GET / 500 in 12ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ✓ Compiled /favicon.ico in 1152ms (2139 modules)
+ GET / 200 in 404ms
+ GET / 200 in 33ms
+ ✓ Compiled /api/delays in 190ms (2131 modules)
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 248ms
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 250ms
+ ✓ Compiled in 317ms (2138 modules)
+ GET / 200 in 44ms
+ GET /api/delays?route=all&period=1d&chartType=categories 200 in 47ms
+ GET /api/delays?route=all&period=1d&chartType=stats 200 in 52ms
+ GET /api/delays?route=myrvoll-oslo&period=1d&chartType=stats 200 in 14ms
+ GET /api/delays?route=myrvoll-oslo&period=1d&chartType=categories 200 in 15ms
+ GET /api/delays?route=oslo-ski&period=1d&chartType=stats 200 in 10ms
+ GET /api/delays?route=oslo-ski&period=1d&chartType=categories 200 in 11ms
+ ✓ Compiled in 364ms (2138 modules)
+ GET / 200 in 42ms
+ ✓ Compiled in 213ms (2138 modules)
+ GET / 200 in 32ms
+ ✓ Compiled in 175ms (2138 modules)
+ GET / 200 in 68ms
+ ✓ Compiled in 441ms (2118 modules)
+ GET / 200 in 101ms
+ GET / 200 in 220ms
+ ✓ Compiled /api/delays in 154ms (1146 modules)
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 234ms
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 235ms
+ ✓ Compiled in 455ms (2118 modules)
+ GET / 200 in 110ms
+ ✓ Compiled in 178ms (2118 modules)
+ GET / 200 in 53ms
+ ✓ Compiled in 191ms (2118 modules)
+ GET / 200 in 92ms
+ ✓ Compiled in 298ms (2118 modules)
+ GET / 200 in 85ms
+ ✓ Compiled in 142ms (2118 modules)
+ GET / 200 in 83ms
+ ✓ Compiled in 206ms (2118 modules)
+ GET / 200 in 49ms
+ ✓ Compiled in 442ms (2118 modules)
+ GET / 200 in 84ms
+ GET / 200 in 231ms
+ ✓ Compiled /api/delays in 185ms (1146 modules)
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 268ms
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 270ms
+ ✓ Compiled in 387ms (2118 modules)
+ GET / 200 in 114ms
+ ✓ Compiled in 165ms (2118 modules)
+ GET / 200 in 68ms
+ ✓ Compiled in 150ms (2118 modules)
+ GET / 200 in 72ms
+ ✓ Compiled in 381ms (2118 modules)
+ GET / 200 in 92ms
+ ✓ Compiled in 178ms (2118 modules)
+ GET / 200 in 63ms
+ ✓ Compiled in 145ms (2118 modules)
+ GET / 200 in 96ms
+ ✓ Compiled in 153ms (2118 modules)
+ GET / 200 in 53ms
+ GET / 200 in 231ms
+ ✓ Compiled /api/delays in 196ms (1146 modules)
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 272ms
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 273ms
+ GET / 200 in 242ms
+ ✓ Compiled /favicon.ico in 141ms (1148 modules)
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 226ms
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 227ms
+ GET /favicon.ico 200 in 235ms
+ GET / 200 in 212ms
+ GET /favicon.ico 200 in 12ms
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 14ms
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 15ms
+ ✓ Compiled in 593ms (2118 modules)
+ GET / 200 in 131ms
+ ✓ Compiled in 285ms (2104 modules)
+ ✓ Compiled in 127ms (992 modules)
+ GET / 200 in 66ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz_' -> '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz_' -> '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz_' -> '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz'
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz_' -> '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development-fallback/1.pack.gz'
+ ✓ Compiled in 172ms (992 modules)
+ GET / 200 in 15ms
+ ✓ Compiled in 867ms (2269 modules)
+ GET / 200 in 78ms
+ ✓ Compiled /api/delays in 89ms (1222 modules)
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 177ms
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 175ms
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 4ms
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 4ms
+ ✓ Compiled in 255ms (2285 modules)
+ GET / 200 in 73ms
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ ⨯ ReferenceError: useEffect is not defined
+    at Dashboard (src/app/page.tsx:47:3)
+  45 |
+  46 |   // Handle responsive breakpoints
+> 47 |   useEffect(() => {
+     |   ^
+  48 |     const checkScreenSize = () => {
+  49 |       const mobile = window.innerWidth < 1024 // lg breakpoint
+  50 |       setIsMobile(mobile) {
+  digest: '1885762887'
+}
+ GET / 500 in 233ms
+ ✓ Compiled /favicon.ico in 167ms (1222 modules)
+ GET /favicon.ico 200 in 214ms
+ ✓ Compiled in 221ms (2287 modules)
+ ⨯ ReferenceError: isMobile is not defined
+    at Dashboard (src/app/page.tsx:25:8)
+  23 |     <div className="h-screen bg-background overflow-hidden">
+  24 |       {/* Mobile backdrop */}
+> 25 |       {isMobile && sidebarOpen && (
+     |        ^
+  26 |         <div 
+  27 |           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+  28 |           onClick={() => setSidebarOpen(false)} {
+  digest: '421228973'
+}
+ GET / 500 in 284ms
+ GET /favicon.ico 200 in 10ms
+ ✓ Compiled in 544ms (2294 modules)
+ GET / 200 in 345ms
+ GET /favicon.ico 200 in 19ms
+ ✓ Compiled /api/delays in 75ms (1228 modules)
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 121ms
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 122ms
+ ✓ Compiled in 413ms (2297 modules)
+ GET / 200 in 95ms
+ GET / 200 in 279ms
+ ✓ Compiled /api/delays in 120ms (1223 modules)
+ ✓ Compiled (1228 modules)
+ GET /favicon.ico 200 in 233ms
+ GET /api/delays?route=all&period=7d&chartType=categories 200 in 225ms
+ GET /api/delays?route=all&period=7d&chartType=stats 200 in 228ms
+ ✓ Compiled /_not-found in 498ms (2268 modules)
+ GET / 200 in 223ms
+ GET / 404 in 736ms
+ ✓ Compiled /favicon.ico in 73ms (1224 modules)
+ GET /favicon.ico 200 in 144ms
+ GET / 200 in 279ms
+ GET /favicon.ico 200 in 7ms
+ GET / 200 in 55ms
+ GET /favicon.ico 200 in 3ms
+ GET / 200 in 43ms
+ GET /favicon.ico 200 in 7ms
+ GET / 200 in 59ms
+ GET /favicon.ico 200 in 6ms
+ GET / 200 in 55ms
+ GET /favicon.ico 200 in 4ms
+ GET / 200 in 46ms
+ GET /favicon.ico 200 in 4ms
+ GET / 200 in 33ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 44ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 41ms
+ GET /favicon.ico 200 in 4ms
+ GET / 200 in 59ms
+ GET /favicon.ico 200 in 5ms
+ GET / 200 in 70ms
+ GET /favicon.ico 200 in 6ms
+ GET / 200 in 66ms
+ GET /favicon.ico 200 in 6ms
+ GET / 200 in 53ms
+ GET /favicon.ico 200 in 4ms
+ GET / 200 in 49ms
+ GET /favicon.ico 200 in 6ms
+ ✓ Compiled in 619ms (2277 modules)
+ ✓ Compiled in 190ms (2277 modules)
+ ✓ Compiled in 323ms (2277 modules)
+ GET / 200 in 341ms
+ ✓ Compiled /favicon.ico in 74ms (1223 modules)
+ GET /favicon.ico 200 in 151ms
+ GET / 200 in 245ms
+ GET /favicon.ico 200 in 4ms
+ ✓ Compiled in 813ms (2277 modules)
+ ✓ Compiled in 246ms (1071 modules)
+ ✓ Compiled in 376ms (2277 modules)
+ ✓ Compiled in 245ms (2277 modules)
+ ✓ Compiled in 437ms (2277 modules)
+ ✓ Compiled in 1000ms (2277 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development/4.pack.gz_' -> '/Users/hakonstillingen/Development/togforsinkelse/toginnsikt-dashboard/.next/cache/webpack/client-development/4.pack.gz'
+[?25h

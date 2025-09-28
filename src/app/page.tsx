@@ -1,103 +1,167 @@
-import Image from "next/image";
+"use client";
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BarChart3, Clock, AlertTriangle } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useFilters } from "@/contexts/filter-context";
+import { DelayChart } from "@/components/delay-chart";
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  // Get filter state from context
+  const { selectedPeriod, selectedRoute, selectedDate } = useFilters();
+  const [stats, setStats] = useState({
+    totalDepartures: 1247,
+    delayedPercentage: 23.4,
+    cancelledPercentage: 2.1,
+    periodLabel: "Siste 7 dager",
+    delayedTrend: {
+      value: 2.1,
+      isPositive: true,
+      label: "fra forrige 7-dagers periode"
+    },
+    cancelledTrend: {
+      value: 0.3,
+      isPositive: true,
+      label: "fra forrige 7-dagers periode"
+    }
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+  // Fetch real data from API
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const url = new URL('/api/delays', window.location.origin);
+        url.searchParams.set('period', selectedPeriod);
+        url.searchParams.set('route', selectedRoute);
+        if (selectedDate) {
+          // Use local date to avoid timezone issues
+          const year = selectedDate.getFullYear();
+          const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+          const day = String(selectedDate.getDate()).padStart(2, '0');
+          url.searchParams.set('date', `${year}-${month}-${day}`);
+        }
+        
+        const response = await fetch(url.toString());
+        const result = await response.json();
+        
+        if (result.stats) {
+          const periodLabels = {
+            "1d": "Siste 24 timer",
+            "7d": "Siste 7 dager", 
+            "30d": "Siste 30 dager",
+            "90d": "Siste 90 dager"
+          };
+          
+          // For now, we'll use mock trend data since we need historical comparison
+          // In a real implementation, you'd fetch previous period data for comparison
+          const mockTrends = {
+            "1d": { delayedChange: 2.1, cancelledChange: 0.5, label: "fra forrige 24 timer" },
+            "7d": { delayedChange: 1.8, cancelledChange: -0.2, label: "fra forrige 7-dagers periode" },
+            "30d": { delayedChange: 3.2, cancelledChange: 0.8, label: "fra forrige 30-dagers periode" },
+            "90d": { delayedChange: -1.1, cancelledChange: -0.5, label: "fra forrige 90-dagers periode" }
+          };
+          
+          const trend = mockTrends[selectedPeriod as keyof typeof mockTrends] || mockTrends["7d"];
+          
+          // Calculate delay percentage using business intelligence definition
+          // (delayed_classified + severely_delayed) / total_departures
+          const businessIntelligenceDelayPercentage = result.stats.delayedClassified && result.stats.severelyDelayed 
+            ? Math.round(((result.stats.delayedClassified + result.stats.severelyDelayed) / result.stats.totalDepartures) * 100 * 10) / 10
+            : result.stats.delayPercentage; // Fallback to original calculation
+          
+          setStats({
+            totalDepartures: result.stats.totalDepartures,
+            delayedPercentage: businessIntelligenceDelayPercentage,
+            cancelledPercentage: result.stats.cancelledPercentage || 0,
+            periodLabel: periodLabels[selectedPeriod as keyof typeof periodLabels] || "Siste 7 dager",
+            delayedTrend: {
+              value: Math.abs(trend.delayedChange),
+              isPositive: trend.delayedChange > 0,
+              label: trend.label
+            },
+            cancelledTrend: {
+              value: Math.abs(trend.cancelledChange),
+              isPositive: trend.cancelledChange > 0,
+              label: trend.label
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, [selectedPeriod, selectedRoute, selectedDate]);
+  
+  return (
+    <main className="flex-1 p-6">
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">L2 Linje Forsinkelsesanalyse</h1>
+        <p className="text-muted-foreground mt-2">Analyse av forsinkelser på L2 linje</p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Total Departures */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Totalt antall avganger</CardTitle>
+            <BarChart3 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalDepartures.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              {stats.periodLabel}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Delayed Percentage - Updated with Business Intelligence Logic */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Andel forsinket</CardTitle>
+            <Clock className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.delayedPercentage}%</div>
+            <p className="text-xs text-muted-foreground">
+              <span className={stats.delayedTrend?.isPositive ? "text-red-600" : "text-green-600"}>
+                {stats.delayedTrend?.isPositive ? "+" : "-"}{stats.delayedTrend?.value?.toFixed(1)}%
+              </span> {stats.delayedTrend?.label}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Cancellation Rate - New Card */}
+        <Card className={stats.cancelledPercentage > 5 ? "border-red-200 bg-red-50" : ""}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Andel kansellert</CardTitle>
+            <AlertTriangle className={`h-4 w-4 ${stats.cancelledPercentage > 5 ? "text-red-600" : "text-muted-foreground"}`} />
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${stats.cancelledPercentage > 5 ? "text-red-600" : ""}`}>
+              {stats.cancelledPercentage}%
+            </div>
+            <p className="text-xs text-muted-foreground">
+              <span className={stats.cancelledTrend?.isPositive ? "text-red-600" : "text-green-600"}>
+                {stats.cancelledTrend?.isPositive ? "+" : "-"}{stats.cancelledTrend?.value?.toFixed(1)}%
+              </span> {stats.cancelledTrend?.label}
+            </p>
+            {stats.cancelledPercentage > 5 && (
+              <p className="text-xs text-red-600 font-medium mt-1">
+                ⚠️ Over 5% terskelverdi
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Chart Section */}
+      <div className="w-full">
+        <DelayChart />
+      </div>
+    </main>
+  )
 }
