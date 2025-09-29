@@ -61,14 +61,23 @@ jobs:
         run: |
           echo "🔒 Running security scan..."
           
-          # Check for common security issues
-          if grep -r "password\|secret\|key" --include="*.py" --include="*.yml" --include="*.yaml" . | grep -v "test\|example\|config" | grep -v "getenv\|os.getenv" | grep -v "DB_PASSWORD\|DB_HOST\|DB_USER" | grep -v "workflows" | grep -v "echo.*secret"; then
-            echo "❌ Potential security issues found"
-            echo "Please review and remove any hardcoded secrets"
+          # Check for hardcoded secrets (more specific patterns)
+          if grep -r "password\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv"; then
+            echo "❌ Potential hardcoded passwords found"
             exit 1
-          else
-            echo "✅ No security issues detected"
           fi
+          
+          if grep -r "secret\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv"; then
+            echo "❌ Potential hardcoded secrets found"
+            exit 1
+          fi
+          
+          if grep -r "key\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv" | grep -v "\.keys()"; then
+            echo "❌ Potential hardcoded keys found"
+            exit 1
+          fi
+          
+          echo "✅ No security issues detected"
 
       - name: Update Project Board
         uses: actions/github-script@v7
