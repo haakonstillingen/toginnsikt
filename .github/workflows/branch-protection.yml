@@ -88,16 +88,23 @@ jobs:
               const issueNumbers = pr.body.match(/#(\d+)/g);
               
               if (issueNumbers) {
-                issueNumbers.forEach(issueRef => {
+                for (const issueRef of issueNumbers) {
                   const issueNum = issueRef.replace('#', '');
+                  console.log(`Found issue reference: #${issueNum}`);
                   
-                  // Add branch protection status to issue
-                  github.rest.issues.createComment({
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: issueNum,
-                    body: `🛡️ **Branch Protection Status**\n\nPR: #${pr.number}\nStatus: ✅ Branch protection checks passed\n\n**Protection Rules Enforced:**\n- ✅ No direct pushes to main\n- ✅ Security scan passed\n- ✅ Commit message validation passed\n\nReady for review! 🔍`
-                  });
-                });
+                  try {
+                    // Add branch protection status to issue
+                    await github.rest.issues.createComment({
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      issue_number: issueNum,
+                      body: `🛡️ **Branch Protection Status**\n\nPR: #${pr.number}\nStatus: ✅ Branch protection checks passed\n\n**Protection Rules Enforced:**\n- ✅ No direct pushes to main\n- ✅ Security scan passed\n- ✅ Commit message validation passed\n\nReady for review! 🔍`
+                    });
+                    console.log(`✅ Successfully commented on issue #${issueNum}`);
+                  } catch (error) {
+                    console.log(`⚠️ Could not comment on issue #${issueNum}: ${error.message}`);
+                    console.log(`This is not a critical error - branch protection still passed`);
+                  }
+                }
               }
             }
