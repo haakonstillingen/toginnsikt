@@ -41,13 +41,19 @@ jobs:
                 const issueNum = issueRef.replace('#', '');
                 console.log(`Found issue reference: #${issueNum}`);
                 
-                // Add deployment comment to issue
-                github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNum,
-                  body: `🚀 **Deployment Triggered**\n\nCommit: ${context.sha}\nMessage: ${commitMessage}\nStatus: Cloud Build triggered successfully`
-                });
+                try {
+                  // Add deployment comment to issue
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNum,
+                    body: `🚀 **Deployment Triggered**\n\nCommit: ${context.sha}\nMessage: ${commitMessage}\nStatus: Cloud Build triggered successfully`
+                  });
+                  console.log(`✅ Successfully commented on issue #${issueNum}`);
+                } catch (error) {
+                  console.log(`⚠️ Could not comment on issue #${issueNum}: ${error.message}`);
+                  console.log(`This is not a critical error - deployment still succeeded`);
+                }
               });
             }
 
@@ -83,12 +89,18 @@ jobs:
                 const issueNum = issueRef.replace('#', '');
                 console.log(`PR references issue #${issueNum}`);
                 
-                // Add PR comment to issue
-                github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNum,
-                  body: `🔗 **Pull Request Created**\n\nPR: #${pr.number}\nTitle: ${pr.title}\nStatus: ${pr.state}\nURL: ${pr.html_url}`
-                });
+                try {
+                  // Add PR comment to issue
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNum,
+                    body: `🔗 **Pull Request Created**\n\nPR: #${pr.number}\nTitle: ${pr.title}\nStatus: ${pr.state}\nURL: ${pr.html_url}`
+                  });
+                  console.log(`✅ Successfully commented on issue #${issueNum}`);
+                } catch (error) {
+                  console.log(`⚠️ Could not comment on issue #${issueNum}: ${error.message}`);
+                  console.log(`This is not a critical error - PR validation still passed`);
+                }
               });
             }
