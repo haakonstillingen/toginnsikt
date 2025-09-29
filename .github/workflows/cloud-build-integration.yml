@@ -37,7 +37,7 @@ jobs:
             const issueNumbers = commitMessage.match(/#(\d+)/g);
             
             if (issueNumbers) {
-              issueNumbers.forEach(issueRef => {
+              for (const issueRef of issueNumbers) {
                 const issueNum = issueRef.replace('#', '');
                 console.log(`Found issue reference: #${issueNum}`);
                 
@@ -54,7 +54,7 @@ jobs:
                   console.log(`⚠️ Could not comment on issue #${issueNum}: ${error.message}`);
                   console.log(`This is not a critical error - deployment still succeeded`);
                 }
-              });
+              }
             }
 
   pr-validation:
@@ -85,7 +85,7 @@ jobs:
             const issueNumbers = pr.body.match(/#(\d+)/g);
             
             if (issueNumbers) {
-              issueNumbers.forEach(issueRef => {
+              for (const issueRef of issueNumbers) {
                 const issueNum = issueRef.replace('#', '');
                 console.log(`PR references issue #${issueNum}`);
                 
@@ -102,5 +102,5 @@ jobs:
                   console.log(`⚠️ Could not comment on issue #${issueNum}: ${error.message}`);
                   console.log(`This is not a critical error - PR validation still passed`);
                 }
-              });
+              }
             }
