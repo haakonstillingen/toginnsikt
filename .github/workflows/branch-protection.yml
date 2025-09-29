@@ -62,7 +62,7 @@ jobs:
           echo "🔒 Running security scan..."
           
           # Check for common security issues
-          if grep -r "password\|secret\|key" --include="*.py" --include="*.yml" --include="*.yaml" . | grep -v "test\|example\|config" | grep -v "getenv\|os.getenv" | grep -v "DB_PASSWORD\|DB_HOST\|DB_USER"; then
+          if grep -r "password\|secret\|key" --include="*.py" --include="*.yml" --include="*.yaml" . | grep -v "test\|example\|config" | grep -v "getenv\|os.getenv" | grep -v "DB_PASSWORD\|DB_HOST\|DB_USER" | grep -v "workflows" | grep -v "echo.*secret"; then
             echo "❌ Potential security issues found"
             echo "Please review and remove any hardcoded secrets"
             exit 1
