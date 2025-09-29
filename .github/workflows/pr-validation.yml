@@ -89,6 +89,9 @@ jobs:
         run: |
           echo "🧪 Testing configuration..."
           
+          # Install required dependencies for testing
+          pip install -r requirements.txt
+          
           # Test if config can be imported
           python -c "import config_cloud; print('✅ Config import successful')"
           
