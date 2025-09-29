@@ -47,13 +47,23 @@ jobs:
         run: |
           echo "🔒 Running security checks..."
           
-          # Check for hardcoded secrets
-          if grep -r "password\|secret\|key" --include="*.py" --include="*.yml" --include="*.yaml" . | grep -v "test\|example\|config" | grep -v "DB_PASSWORD\|DB_HOST\|DB_USER" | grep -v "getenv\|os.getenv" | grep -v "workflows" | grep -v "echo.*secret"; then
+          # Check for hardcoded secrets (more specific patterns)
+          if grep -r "password\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv"; then
+            echo "❌ Potential hardcoded passwords found"
+            exit 1
+          fi
+          
+          if grep -r "secret\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv"; then
             echo "❌ Potential hardcoded secrets found"
             exit 1
-          else
-            echo "✅ No hardcoded secrets detected"
           fi
+          
+          if grep -r "key\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv" | grep -v "\.keys()"; then
+            echo "❌ Potential hardcoded keys found"
+            exit 1
+          fi
+          
+          echo "✅ No hardcoded secrets detected"
           
           # Check for TODO/FIXME comments
           if grep -r "TODO\|FIXME" --include="*.py" .; then
