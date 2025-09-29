@@ -1,16 +1,16 @@
 ---
-name: Development Workflow Issue
-about: Create an issue to track development workflow improvements
-title: 'workflow: [description]'
-labels: 'workflow, enhancement'
+name: General Issue
+about: Create a general issue for bugs, features, or improvements
+title: '[type]: [description]'
+labels: ''
 assignees: ''
 ---
 
-## Development Workflow Issue
+## General Issue
 
-**Type:** Workflow Improvement  
+**Type:** [Bug/Feature/Enhancement/Documentation]  
 **Priority:** [High/Medium/Low]  
-**Component:** Development Process
+**Component:** [Database/API/Frontend/Backend/Infrastructure/Other]
 
 ### 🤖 For AI Agents
 **IMPORTANT**: Before working on this issue:
@@ -20,14 +20,22 @@ assignees: ''
 4. **Use feature branches** - never push directly to main
 5. **Reference this issue** in all commits: `fix: [description] #123`
 
-### Problem
-[Describe the workflow issue or improvement needed]
+### Problem/Request
+[Describe the issue or feature request]
 
-### Current Workflow
-[Describe current process if applicable]
+### Current Behavior
+[Describe what currently happens]
+
+### Expected Behavior
+[Describe what should happen]
+
+### Steps to Reproduce (if bug)
+1. Step 1
+2. Step 2
+3. Step 3
 
 ### Proposed Solution
-[Describe the improved workflow]
+[Describe your proposed solution]
 
 ### Implementation Steps
 - [ ] Step 1
@@ -41,6 +49,11 @@ assignees: ''
 
 ### Related Files
 - [List relevant files]
+
+### Security Considerations
+- [ ] No hardcoded secrets
+- [ ] Uses Secret Manager for sensitive data
+- [ ] Follows existing security patterns
 
 ### Notes
 [Any additional context or considerations]

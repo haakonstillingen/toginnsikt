@@ -1,0 +1,60 @@
+# Cursor AI Rules for Toginnsikt Project
+
+## 🚀 Development Workflow
+- ALWAYS work on feature branches, NEVER directly on main
+- Create descriptive branch names: `feature/description`, `fix/description`, `docs/description`
+- Reference GitHub issues in commit messages: `fix: resolve database connection issue #123`
+- Follow conventional commit format: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`
+
+## 🔒 Security Requirements
+- NEVER hardcode secrets, passwords, or API keys in code
+- Use Google Cloud Secret Manager for sensitive data (see config_cloud.py)
+- All database credentials must be stored in Secret Manager
+- Environment variables are only for non-sensitive configuration
+
+## 🧪 Testing & Validation
+- All changes must pass PR validation workflows
+- Security scans must pass before merging
+- Configuration tests must pass (dependencies installed)
+- Code quality checks must pass
+
+## 📋 Pull Request Process
+- Create PRs for ALL changes (no direct pushes to main)
+- Include issue references in PR descriptions: `Fixes #123`
+- Wait for all workflow checks to pass
+- Use "Merge without waiting for requirements" only for testing/emergencies
+
+## 🏗️ Architecture & Code Style
+- Follow existing patterns in config_cloud.py for secret management
+- Use proper error handling with try-catch blocks
+- Add logging instead of print statements for production code
+- Maintain existing file structure and naming conventions
+
+## 🚀 Deployment Pipeline
+- Changes are deployed via Google Cloud Build
+- Cloud Run service uses Secret Manager for credentials
+- Database migrations are handled through Cloud Build
+- All deployments are tracked through GitHub Actions
+
+## 📁 Key Files to Understand
+- `.github/workflows/` - CI/CD workflows
+- `config_cloud.py` - Configuration and secret management
+- `cloudbuild.yaml` - Google Cloud Build configuration
+- `.github/DEVELOPMENT_WORKFLOW.md` - Complete workflow documentation
+
+## ⚠️ Critical Rules
+- NEVER bypass security checks without understanding the impact
+- ALWAYS test changes in feature branches first
+- ALWAYS reference issues when making changes
+- ALWAYS follow the established deployment pipeline
+
+## 🔍 When Making Changes
+1. Check if there's an existing issue for the work
+2. Create a feature branch from main
+3. Make changes following security and code standards
+4. Test locally if possible
+5. Create PR with proper description and issue reference
+6. Wait for all checks to pass
+7. Merge using proper workflow
+
+Remember: This project has production data and requires careful handling of secrets and database operations.
