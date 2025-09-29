@@ -17,11 +17,6 @@ steps:
     env:
     - 'CLOUD_SQL_CONNECTION_NAME=toginnsikt:europe-north1:togforsinkelse-db'
     - 'GOOGLE_CLOUD_PROJECT=toginnsikt'
-    - 'DB_NAME=togforsinkelse_enhanced'
-    - 'DB_USER=togforsinkelse-user'
-    - 'DB_PASSWORD=fPl21YN#cF0RngM9'
-    - 'DB_HOST=127.0.0.1'
-    - 'DB_PORT=5432'
     - 'ENTUR_API_URL=https://api.entur.io/journeyplanner/2.0/index/graphql'
     - 'CLIENT_NAME=toginnsikt-collector'
     - 'DATA_RETENTION_HOURS=48'
