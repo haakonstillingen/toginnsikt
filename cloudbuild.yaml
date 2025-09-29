@@ -34,7 +34,9 @@ steps:
     - '--add-cloudsql-instances'
     - 'toginnsikt:europe-north1:togforsinkelse-db'
     - '--set-env-vars'
-    - 'CLOUD_SQL_CONNECTION_NAME=toginnsikt:europe-north1:togforsinkelse-db'
+    - 'CLOUD_SQL_CONNECTION_NAME=toginnsikt:europe-north1:togforsinkelse-db,GOOGLE_CLOUD_PROJECT=toginnsikt'
+    - '--service-account'
+    - '383318038289-compute@developer.gserviceaccount.com'
 
 images:
   - 'gcr.io/$PROJECT_ID/togforsinkelse-collector:latest'
