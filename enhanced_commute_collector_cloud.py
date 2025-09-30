@@ -139,7 +139,7 @@ class EnhancedCommuteCollectorCloud:
             return None
         
     def init_database(self):
-        """Initialize PostgreSQL database with enhanced schema"""
+        """Initialize PostgreSQL database with basic schema (migrations handled separately)"""
         conn = self.get_db_connection()
         if not conn:
             self.logger.error("Cannot initialize database - no connection")
@@ -148,53 +148,27 @@ class EnhancedCommuteCollectorCloud:
         cursor = conn.cursor()
         
         try:
-            # Read and execute the base migration
-            with open('migrations/002_create_commute_routes_table.sql', 'r') as f:
-                migration_sql = f.read()
+            # Only create the basic delays table if it doesn't exist
+            # All other schema changes are now handled by the migration system
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS delays (
+                    id SERIAL PRIMARY KEY,
+                    timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+                    line_code VARCHAR(10) NOT NULL,
+                    direction VARCHAR(100) NOT NULL,
+                    delay_minutes INTEGER NOT NULL DEFAULT 0,
+                    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
             
-            # Split by semicolon and execute each statement
-            statements = [stmt.strip() for stmt in migration_sql.split(';') if stmt.strip()]
-            for statement in statements:
-                if statement:
-                    cursor.execute(statement)
-            
-            # Read and execute the business intelligence migration
-            with open('migrations/003_add_business_intelligence_fields.sql', 'r') as f:
-                bi_migration_sql = f.read()
-            
-            # Split by semicolon and execute each statement
-            bi_statements = [stmt.strip() for stmt in bi_migration_sql.split(';') if stmt.strip()]
-            for statement in bi_statements:
-                if statement:
-                    cursor.execute(statement)
-            
-            # Add enhanced columns to planned_departures table
-            try:
-                cursor.execute("""
-                    ALTER TABLE planned_departures 
-                    ADD COLUMN collection_status VARCHAR(20) DEFAULT 'pending'
-                """)
-            except psycopg2.ProgrammingError:
-                pass  # Column already exists
-                
-            try:
-                cursor.execute("""
-                    ALTER TABLE planned_departures 
-                    ADD COLUMN retry_count INTEGER DEFAULT 0
-                """)
-            except psycopg2.ProgrammingError:
-                pass  # Column already exists
-                
-            try:
-                cursor.execute("""
-                    ALTER TABLE planned_departures 
-                    ADD COLUMN last_retry_time TIMESTAMP WITH TIME ZONE
-                """)
-            except psycopg2.ProgrammingError:
-                pass  # Column already exists
+            # Create basic indexes
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_delays_timestamp ON delays(timestamp)
+            """)
             
             conn.commit()
-            self.logger.info("Enhanced database initialized successfully")
+            self.logger.info("Basic database schema initialized")
+            self.logger.warning("⚠️  Database migrations should be run separately using: python migration_manager.py migrate")
             
         except Exception as e:
             self.logger.error(f"Database initialization failed: {e}")
