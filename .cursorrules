@@ -1,0 +1,123 @@
+# Cursor Rules for Toginnsikt Project
+
+## Project Overview
+Toginnsikt is a train delay monitoring system for the L2 line between Myrvoll and Oslo S, built with Python backend and Next.js dashboard.
+
+## Code Style & Standards
+
+### Python Backend
+- Follow PEP 8 style guidelines
+- Use type hints for function parameters and return values
+- Use descriptive variable and function names
+- Add docstrings for all functions and classes
+- Use logging instead of print statements for production code
+- Handle exceptions gracefully with specific error messages
+
+### TypeScript/React Frontend
+- Use TypeScript strict mode
+- Follow React best practices with functional components
+- Use Tailwind CSS for styling
+- Implement proper error boundaries
+- Use proper state management patterns
+
+## Database & API
+- All database times stored in UTC
+- Use parameterized queries to prevent SQL injection
+- Implement proper error handling for database operations
+- Use connection pooling for database connections
+
+## Git Workflow
+- Use conventional commit format: `type(scope): description`
+  - Types: feat, fix, docs, style, refactor, test, chore, security
+  - Examples: `feat(dashboard): add timezone conversion`, `fix(api): handle null timestamps`
+- All PRs must reference an issue (e.g., `Fixes #23`)
+- All PRs must have descriptive titles and bodies
+- Use feature branches: `feature/issue-23-timezone-conversion`
+- Keep commits focused and atomic
+
+## Testing
+- Write tests for new functionality
+- Test database queries with real data patterns
+- Validate API responses match expected formats
+- Test error handling scenarios
+
+## Security
+- Never commit hardcoded passwords, secrets, or API keys
+- Use environment variables or secure secret management
+- Validate all user inputs
+- Use HTTPS for all external API calls
+
+## Documentation
+- Update README.md for new features
+- Document API changes in code comments
+- Keep collection_strategy.md updated with system changes
+- Add inline comments for complex business logic
+
+## Performance
+- Use database indexes for frequently queried columns
+- Implement proper pagination for large datasets
+- Cache frequently accessed data when appropriate
+- Monitor API response times
+
+## Deployment
+- Test Docker builds before deployment
+- Validate cloudbuild.yaml configuration
+- Use semantic versioning for releases
+- Test in staging environment before production
+
+## Norwegian Localization
+- Display times in Norwegian local time (Europe/Oslo timezone)
+- Handle daylight saving time transitions automatically
+- Use Norwegian language for user-facing text
+- Format dates and times according to Norwegian conventions
+
+## Code Review Checklist
+- [ ] Code follows project style guidelines
+- [ ] Proper error handling implemented
+- [ ] No hardcoded secrets or credentials
+- [ ] Tests written for new functionality
+- [ ] Documentation updated
+- [ ] Database queries are optimized
+- [ ] Security considerations addressed
+- [ ] Performance impact considered
+
+## Common Patterns
+
+### Database Queries
+```sql
+-- Use timezone conversion for Norwegian local time
+SELECT TO_CHAR(column::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS') as local_time
+```
+
+### Error Handling
+```python
+try:
+    # Database operation
+    result = cursor.execute(query, params)
+except psycopg2.Error as e:
+    logger.error(f"Database error: {e}")
+    raise DatabaseError("Failed to fetch data") from e
+```
+
+### API Response Format
+```typescript
+interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  error?: string;
+  timestamp: string;
+}
+```
+
+## Project Structure
+- `/debug_and_test_scripts/` - Analysis and testing scripts
+- `/migrations/` - Database schema changes
+- `/toginnsikt-dashboard/` - Next.js frontend application
+- Configuration files in root directory
+- Documentation files with .md extension
+
+## Dependencies
+- Python: psycopg2, requests, python-dateutil
+- Frontend: Next.js, React, TypeScript, Tailwind CSS
+- Database: PostgreSQL with timezone support
+- Deployment: Google Cloud Run, Cloud SQL
