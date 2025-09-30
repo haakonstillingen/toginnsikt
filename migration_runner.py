@@ -49,8 +49,20 @@ class MigrationRunner:
     def get_db_connection(self):
         """Get PostgreSQL database connection"""
         try:
-            if CLOUD_SQL_CONNECTION_NAME:
-                # Use Cloud SQL connector
+            # Check if we're in Cloud Build environment (use direct connection)
+            if os.getenv('GOOGLE_CLOUD_PROJECT') and not os.path.exists(f'/cloudsql/{CLOUD_SQL_CONNECTION_NAME}'):
+                # Use direct connection for Cloud Build
+                self.logger.info("Using direct database connection for Cloud Build")
+                conn = psycopg2.connect(
+                    host=DB_HOST,
+                    port=DB_PORT,
+                    database=DB_NAME,
+                    user=DB_USER,
+                    password=DB_PASSWORD
+                )
+            elif CLOUD_SQL_CONNECTION_NAME and os.path.exists(f'/cloudsql/{CLOUD_SQL_CONNECTION_NAME}'):
+                # Use Cloud SQL connector (for Cloud Run)
+                self.logger.info("Using Cloud SQL socket connection")
                 conn = psycopg2.connect(
                     host=f'/cloudsql/{CLOUD_SQL_CONNECTION_NAME}',
                     user=DB_USER,
@@ -58,7 +70,8 @@ class MigrationRunner:
                     database=DB_NAME
                 )
             else:
-                # Direct connection
+                # Direct connection (fallback)
+                self.logger.info("Using direct database connection")
                 conn = psycopg2.connect(
                     host=DB_HOST,
                     port=DB_PORT,
