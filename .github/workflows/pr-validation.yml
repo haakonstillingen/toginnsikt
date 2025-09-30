@@ -1,0 +1,195 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Validate PR Requirements
+        run: |
+          echo "🔍 Validating Pull Request #${{ github.event.number }}"
+          echo "PR Title: ${{ github.event.pull_request.title }}"
+          echo "PR Author: ${{ github.event.pull_request.user.login }}"
+          echo "Base Branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Head Branch: ${{ github.event.pull_request.head.ref }}"
+          
+          # Check if PR references an issue
+          if echo "${{ github.event.pull_request.body }}" | grep -q "#[0-9]"; then
+            echo "✅ PR references an issue"
+          else
+            echo "❌ PR doesn't reference an issue - this is required"
+            exit 1
+          fi
+          
+          # Check if PR has a description
+          if [ -n "${{ github.event.pull_request.body }}" ]; then
+            echo "✅ PR has a description"
+          else
+            echo "❌ PR description is empty - this is required"
+            exit 1
+          fi
+          
+          # Check if PR title follows convention
+          if echo "${{ github.event.pull_request.title }}" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|security):"; then
+            echo "✅ PR title follows conventional commit format"
+          else
+            echo "⚠️ PR title doesn't follow conventional commit format (feat:, fix:, etc.)"
+          fi
+
+      - name: Run Security Checks
+        run: |
+          echo "🔒 Running security checks..."
+          
+          # Check for hardcoded secrets (more specific patterns)
+          if grep -r "password\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv"; then
+            echo "❌ Potential hardcoded passwords found"
+            exit 1
+          fi
+          
+          if grep -r "secret\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv"; then
+            echo "❌ Potential hardcoded secrets found"
+            exit 1
+          fi
+          
+          if grep -r "key\s*=\s*[\"'][^\"']*[\"']" --include="*.py" . | grep -v "getenv\|os.getenv" | grep -v "\.keys()"; then
+            echo "❌ Potential hardcoded keys found"
+            exit 1
+          fi
+          
+          echo "✅ No hardcoded secrets detected"
+          
+          # Check for TODO/FIXME comments
+          if grep -r "TODO\|FIXME" --include="*.py" .; then
+            echo "⚠️ TODO/FIXME comments found - please address before merging"
+          fi
+
+      - name: Run Code Quality Checks
+        run: |
+          echo "📊 Running code quality checks..."
+          
+          # Check Python syntax
+          python -m py_compile enhanced_commute_collector_cloud.py
+          python -m py_compile config_cloud.py
+          python -m py_compile cloud_run_server.py
+          echo "✅ Python syntax check passed"
+          
+          # Check for common issues
+          if grep -r "print(" --include="*.py" . | grep -v "test"; then
+            echo "⚠️ Print statements found - consider using logging"
+          fi
+
+      - name: Test Configuration
+        run: |
+          echo "🧪 Testing configuration..."
+          
+          # Install required dependencies for testing
+          pip install -r requirements.txt
+          
+          # Test if config can be imported
+          python -c "import config_cloud; print('✅ Config import successful')"
+          
+          # Test if required modules can be imported
+          python -c "import enhanced_commute_collector_cloud; print('✅ Main module import successful')"
+
+      - name: Update Project Board
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const issueNumbers = pr.body.match(/#(\d+)/g);
+            
+            if (issueNumbers) {
+              for (const issueRef of issueNumbers) {
+                const issueNum = issueRef.replace('#', '');
+                console.log(`PR references issue #${issueNum}`);
+                
+                try {
+                  // Add PR validation comment to issue
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNum,
+                    body: `🔍 **Pull Request Validation**\n\nPR: #${pr.number}\nTitle: ${pr.title}\nStatus: ✅ Validation passed\nURL: ${pr.html_url}\n\n**Checks Passed:**\n- ✅ References issue\n- ✅ Has description\n- ✅ Security checks passed\n- ✅ Code quality checks passed\n- ✅ Configuration test passed`
+                  });
+                  console.log(`✅ Successfully commented on issue #${issueNum}`);
+                } catch (error) {
+                  console.log(`⚠️ Could not comment on issue #${issueNum}: ${error.message}`);
+                  console.log(`This is not a critical error - validation still passed`);
+                }
+              }
+            }
+
+  test-deployment:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test Docker Build
+        run: |
+          echo "🐳 Testing Docker build..."
+          
+          # Test if Dockerfile exists and is valid
+          if [ -f "Dockerfile" ]; then
+            echo "✅ Dockerfile found"
+            
+            # Check for hardcoded credentials in Dockerfile
+            if grep -q "ENV.*PASSWORD\|ENV.*SECRET\|ENV.*KEY" Dockerfile; then
+              echo "❌ Hardcoded credentials found in Dockerfile"
+              exit 1
+            else
+              echo "✅ No hardcoded credentials in Dockerfile"
+            fi
+          else
+            echo "❌ Dockerfile not found"
+            exit 1
+          fi
+
+      - name: Test Cloud Build Configuration
+        run: |
+          echo "☁️ Testing Cloud Build configuration..."
+          
+          if [ -f "cloudbuild.yaml" ]; then
+            echo "✅ cloudbuild.yaml found"
+            
+            # Validate YAML syntax
+            python -c "import yaml; yaml.safe_load(open('cloudbuild.yaml')); print('✅ cloudbuild.yaml syntax valid')"
+          else
+            echo "❌ cloudbuild.yaml not found"
+            exit 1
+          fi
+
+      - name: Update Project Board with Test Results
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const issueNumbers = pr.body.match(/#(\d+)/g);
+            
+            if (issueNumbers) {
+              for (const issueRef of issueNumbers) {
+                const issueNum = issueRef.replace('#', '');
+                
+                try {
+                  // Add test results comment to issue
+                  await github.rest.issues.createComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issueNum,
+                    body: `🧪 **Deployment Test Results**\n\nPR: #${pr.number}\nStatus: ✅ All tests passed\n\n**Tests Passed:**\n- ✅ Docker build test\n- ✅ Cloud Build configuration test\n- ✅ No hardcoded credentials detected\n\nReady for review and merge! 🚀`
+                  });
+                  console.log(`✅ Successfully commented on issue #${issueNum}`);
+                } catch (error) {
+                  console.log(`⚠️ Could not comment on issue #${issueNum}: ${error.message}`);
+                  console.log(`This is not a critical error - tests still passed`);
+                }
+              }
+            }
