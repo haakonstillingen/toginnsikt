@@ -22,6 +22,8 @@ steps:
     - 'DATA_RETENTION_HOURS=48'
     - 'RETRY_DELAY_MINUTES=5'
     - 'LOG_FILE=enhanced_collector.log'
+    - 'DB_HOST=35.228.203.238'
+    - 'DB_PORT=5432'
   
   # Deploy container image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
