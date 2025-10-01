@@ -67,10 +67,10 @@ export async function GET(request: NextRequest) {
     // Get classification data - hourly for 1d, daily for 7d+
     let query;
     if (period === '1d') {
-      // Hourly data for 24-hour view
+      // Hourly data for 24-hour view - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(ad.actual_departure_time::timestamp, 'YYYY-MM-DD HH24:00:00') as time_period,
+          TO_CHAR(ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00') as time_period,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.departure_status = 'on_time' THEN 1 ELSE 0 END) as on_time,
           SUM(CASE WHEN ad.departure_status = 'delayed' THEN 1 ELSE 0 END) as delayed,
@@ -83,17 +83,17 @@ export async function GET(request: NextRequest) {
         WHERE ad.actual_departure_time IS NOT NULL
           AND ad.actual_departure_time >= $1 
           AND ad.actual_departure_time <= $2
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp) >= 6
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp) <= 21
+          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
+          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
-        GROUP BY TO_CHAR(ad.actual_departure_time::timestamp, 'YYYY-MM-DD HH24:00:00')
+        GROUP BY TO_CHAR(ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
         ORDER BY time_period
       `;
     } else {
-      // Daily data for 7d, 30d, 90d views
+      // Daily data for 7d, 30d, 90d views - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(ad.actual_departure_time::timestamp, 'YYYY-MM-DD') as time_period,
+          TO_CHAR(ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD') as time_period,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.departure_status = 'on_time' THEN 1 ELSE 0 END) as on_time,
           SUM(CASE WHEN ad.departure_status = 'delayed' THEN 1 ELSE 0 END) as delayed,
@@ -106,10 +106,10 @@ export async function GET(request: NextRequest) {
         WHERE ad.actual_departure_time IS NOT NULL
           AND ad.actual_departure_time >= $1 
           AND ad.actual_departure_time <= $2
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp) >= 6
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp) <= 21
+          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
+          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
-        GROUP BY TO_CHAR(ad.actual_departure_time::timestamp, 'YYYY-MM-DD')
+        GROUP BY TO_CHAR(ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
         ORDER BY time_period
       `;
     }

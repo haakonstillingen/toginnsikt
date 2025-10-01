@@ -140,7 +140,7 @@ export function DelayChart() {
           <>
             {selectedPeriod === '1d' ? (
               <>
-                Viser data fra {new Date(sortedData[0].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} til {new Date(sortedData[sortedData.length - 1].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })}
+                Viser data fra {new Date(sortedData[0].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} til {new Date(sortedData[sortedData.length - 1].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} (norsk tid)
                 {sortedData.length < 16 && (
                   <span className="text-amber-600 ml-2">
                     (Begrenset data - kun {sortedData.length} timer tilgjengelig)
@@ -149,7 +149,7 @@ export function DelayChart() {
               </>
             ) : (
               <>
-                Viser data fra {new Date(sortedData[0].hour).toLocaleDateString('no-NO', { day: '2-digit', month: '2-digit' })} til {new Date(sortedData[sortedData.length - 1].hour).toLocaleDateString('no-NO', { day: '2-digit', month: '2-digit' })}
+                Viser data fra {new Date(sortedData[0].hour).toLocaleDateString('no-NO', { day: '2-digit', month: '2-digit' })} til {new Date(sortedData[sortedData.length - 1].hour).toLocaleDateString('no-NO', { day: '2-digit', month: '2-digit' })} (norsk tid)
                 <span className="text-amber-600 ml-2">
                   ({sortedData.length} dager tilgjengelig)
                 </span>

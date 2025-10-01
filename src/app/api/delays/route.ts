@@ -67,10 +67,10 @@ export async function GET(request: NextRequest) {
     // Get aggregated data with business intelligence metrics - hourly for 1d, daily for 7d+
     let query;
     if (period === '1d') {
-      // Hourly data for 24-hour view with classification metrics
+      // Hourly data for 24-hour view with classification metrics - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(pd.planned_departure_time::timestamp, 'YYYY-MM-DD HH24:00:00') as hour,
+          TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00') as hour,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.delay_minutes > 0 THEN 1 ELSE 0 END) as delayed_departures,
           AVG(CASE WHEN ad.delay_minutes > 0 THEN ad.delay_minutes END) as avg_delay,
@@ -86,17 +86,17 @@ export async function GET(request: NextRequest) {
         JOIN commute_routes cr ON pd.route_id = cr.id
         WHERE pd.planned_departure_time >= $1 
           AND pd.planned_departure_time <= $2
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp) >= 6
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp) <= 21
+          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
+          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
-        GROUP BY TO_CHAR(pd.planned_departure_time::timestamp, 'YYYY-MM-DD HH24:00:00')
+        GROUP BY TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
         ORDER BY hour
       `;
     } else {
-      // Daily data for 7d, 30d, 90d views with classification metrics
+      // Daily data for 7d, 30d, 90d views with classification metrics - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(pd.planned_departure_time::timestamp, 'YYYY-MM-DD') as hour,
+          TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD') as hour,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.delay_minutes > 0 THEN 1 ELSE 0 END) as delayed_departures,
           AVG(CASE WHEN ad.delay_minutes > 0 THEN ad.delay_minutes END) as avg_delay,
@@ -112,10 +112,10 @@ export async function GET(request: NextRequest) {
         JOIN commute_routes cr ON pd.route_id = cr.id
         WHERE pd.planned_departure_time >= $1 
           AND pd.planned_departure_time <= $2
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp) >= 6
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp) <= 21
+          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
+          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
-        GROUP BY TO_CHAR(pd.planned_departure_time::timestamp, 'YYYY-MM-DD')
+        GROUP BY TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
         ORDER BY hour
       `;
     }
