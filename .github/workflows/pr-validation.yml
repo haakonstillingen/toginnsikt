@@ -21,7 +21,8 @@ jobs:
           echo "Head Branch: ${{ github.event.pull_request.head.ref }}"
           
           # Check if PR references an issue
-          if echo "${{ github.event.pull_request.body }}" | grep -q "#[0-9]"; then
+          PR_BODY="${{ github.event.pull_request.body }}"
+          if echo "$PR_BODY" | grep -q "#[0-9]"; then
             echo "✅ PR references an issue"
           else
             echo "❌ PR doesn't reference an issue - this is required"
@@ -29,7 +30,7 @@ jobs:
           fi
           
           # Check if PR has a description
-          if [ -n "${{ github.event.pull_request.body }}" ]; then
+          if [ -n "$PR_BODY" ]; then
             echo "✅ PR has a description"
           else
             echo "❌ PR description is empty - this is required"
@@ -37,10 +38,11 @@ jobs:
           fi
           
           # Check if PR title follows convention
-          if echo "${{ github.event.pull_request.title }}" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|security):"; then
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|security):"; then
             echo "✅ PR title follows conventional commit format"
           else
-            echo "⚠️ PR title doesn't follow conventional commit format (feat:, fix:, etc.)"
+            echo "⚠️ PR title doesn't follow conventional commit format"
           fi
 
       - name: Run Security Checks
