@@ -35,6 +35,27 @@ Toginnsikt is a train delay monitoring system for the L2 line between Myrvoll an
 - Use feature branches: `feature/issue-23-timezone-conversion`
 - Keep commits focused and atomic
 
+## Separation of Concerns
+
+### Branch and PR Organization
+- **ONE concern per branch/PR** - Never mix different types of changes
+- **Infrastructure changes** (CI/CD, workflows, deployment) must be in separate branches/PRs
+- **Feature changes** (dashboard, API, data collection) must be in separate branches/PRs
+- **Bug fixes** should be isolated from feature work
+- **Documentation updates** can be combined only if directly related to the same feature
+
+### Examples of Proper Separation
+- ✅ `feature/dashboard-timezone-conversion` - Only dashboard timezone changes
+- ✅ `fix/pr-validation-workflow` - Only workflow fixes
+- ❌ `feature/timezone-and-workflow-fixes` - Mixing feature and infrastructure
+
+### Why This Matters
+- Easier code review and testing
+- Clearer git history and easier rollbacks
+- Independent deployment of changes
+- Better tracking of what changed and why
+- Reduces merge conflicts and complexity
+
 ## Testing
 - Write tests for new functionality
 - Test database queries with real data patterns
