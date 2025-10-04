@@ -14,11 +14,17 @@ jobs:
 
       - name: Validate PR Requirements
         run: |
-          echo "🔍 Validating Pull Request #${{ github.event.number }}"
-          echo "PR Title: ${{ github.event.pull_request.title }}"
-          echo "PR Author: ${{ github.event.pull_request.user.login }}"
-          echo "Base Branch: ${{ github.event.pull_request.base.ref }}"
-          echo "Head Branch: ${{ github.event.pull_request.head.ref }}"
+          PR_NUMBER="${{ github.event.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+          HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
+          
+          echo "🔍 Validating Pull Request #$PR_NUMBER"
+          echo "PR Title: $PR_TITLE"
+          echo "PR Author: $PR_AUTHOR"
+          echo "Base Branch: $BASE_BRANCH"
+          echo "Head Branch: $HEAD_BRANCH"
           
           # Check if PR references an issue
           PR_BODY="${{ github.event.pull_request.body }}"
@@ -38,7 +44,6 @@ jobs:
           fi
           
           # Check if PR title follows convention
-          PR_TITLE="${{ github.event.pull_request.title }}"
           if echo "$PR_TITLE" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|security):"; then
             echo "✅ PR title follows conventional commit format"
           else
