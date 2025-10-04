@@ -1,0 +1,4 @@
+[submodule "toginnsikt-dashboard"]
+	path = toginnsikt-dashboard
+	url = https://github.com/haakonstillingen/toginnsikt-dashboard.git
+	branch = main
