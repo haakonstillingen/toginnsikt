@@ -86,8 +86,6 @@ export async function GET(request: NextRequest) {
         JOIN commute_routes cr ON pd.route_id = cr.id
         WHERE pd.planned_departure_time >= $1 
           AND pd.planned_departure_time <= $2
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
         GROUP BY TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
         ORDER BY hour
@@ -112,8 +110,6 @@ export async function GET(request: NextRequest) {
         JOIN commute_routes cr ON pd.route_id = cr.id
         WHERE pd.planned_departure_time >= $1 
           AND pd.planned_departure_time <= $2
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
-          AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
         GROUP BY TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
         ORDER BY hour
@@ -125,6 +121,27 @@ export async function GET(request: NextRequest) {
       startDate.toISOString(),
       endDate.toISOString()
     ]);
+    
+    // Get actual time range for the selected day (first and last departure)
+    let actualTimeRange = null;
+    if (period === '1d' && data.rows.length > 0) {
+      const timeRangeQuery = `
+        SELECT 
+          MIN(TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as first_departure,
+          MAX(TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as last_departure
+        FROM actual_departures ad
+        JOIN planned_departures pd ON ad.planned_departure_id = pd.id
+        JOIN commute_routes cr ON pd.route_id = cr.id
+        WHERE pd.planned_departure_time >= $1 
+          AND pd.planned_departure_time <= $2
+          ${routeFilter}
+      `;
+      const timeRangeResult = await client.query(timeRangeQuery, [
+        startDate.toISOString(),
+        endDate.toISOString()
+      ]);
+      actualTimeRange = timeRangeResult.rows[0];
+    }
     
     // Get summary stats with business intelligence metrics, focusing on morning and after-work hours (06:00-21:00)
     const statsQuery = `
@@ -189,7 +206,8 @@ export async function GET(request: NextRequest) {
         onTimePercentage: Math.round((parseInt(stats.rows[0].on_time_departures) / parseInt(stats.rows[0].total_departures)) * 100 * 10) / 10,
         cancelledPercentage: Math.round((parseInt(stats.rows[0].cancelled_departures) / parseInt(stats.rows[0].total_departures)) * 100 * 10) / 10,
         severelyDelayedPercentage: Math.round((parseInt(stats.rows[0].severely_delayed) / parseInt(stats.rows[0].total_departures)) * 100 * 10) / 10
-      }
+      },
+      actualTimeRange: actualTimeRange
     });
     
   } catch (error) {

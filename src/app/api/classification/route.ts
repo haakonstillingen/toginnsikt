@@ -83,8 +83,6 @@ export async function GET(request: NextRequest) {
         WHERE ad.actual_departure_time IS NOT NULL
           AND ad.actual_departure_time >= $1 
           AND ad.actual_departure_time <= $2
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
         GROUP BY TO_CHAR(ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
         ORDER BY time_period
@@ -106,8 +104,6 @@ export async function GET(request: NextRequest) {
         WHERE ad.actual_departure_time IS NOT NULL
           AND ad.actual_departure_time >= $1 
           AND ad.actual_departure_time <= $2
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') >= 6
-          AND EXTRACT(HOUR FROM ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo') <= 21
           ${routeFilter}
         GROUP BY TO_CHAR(ad.actual_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
         ORDER BY time_period

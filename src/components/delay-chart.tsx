@@ -54,6 +54,7 @@ const chartConfig = {
 export function DelayChart() {
   const { selectedPeriod, selectedRoute, selectedDate } = useFilters();
   const [data, setData] = useState<DelayData[]>([]);
+  const [actualTimeRange, setActualTimeRange] = useState<{first_departure: string, last_departure: string} | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,6 +74,7 @@ export function DelayChart() {
         const response = await fetch(url.toString());
         const result = await response.json();
         setData(result.data || []);
+        setActualTimeRange(result.actualTimeRange || null);
       } catch (error) {
         console.error('Failed to fetch delay data:', error);
         setData([]);
@@ -140,11 +142,22 @@ export function DelayChart() {
           <>
             {selectedPeriod === '1d' ? (
               <>
-                Viser data fra {new Date(sortedData[0].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} til {new Date(sortedData[sortedData.length - 1].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} (norsk tid)
-                {sortedData.length < 16 && (
-                  <span className="text-amber-600 ml-2">
-                    (Begrenset data - kun {sortedData.length} timer tilgjengelig)
-                  </span>
+                {actualTimeRange ? (
+                  <>
+                    Viser data fra {new Date(actualTimeRange.first_departure).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} til {new Date(actualTimeRange.last_departure).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} (norsk tid)
+                    <span className="text-green-600 ml-2">
+                      (Faktisk tidsperiode - {sortedData.length} timer med data)
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    Viser data fra {new Date(sortedData[0].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} til {new Date(sortedData[sortedData.length - 1].hour).toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' })} (norsk tid)
+                    {sortedData.length < 16 && (
+                      <span className="text-amber-600 ml-2">
+                        (Begrenset data - kun {sortedData.length} timer tilgjengelig)
+                      </span>
+                    )}
+                  </>
                 )}
               </>
             ) : (
