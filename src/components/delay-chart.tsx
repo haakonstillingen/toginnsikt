@@ -102,11 +102,19 @@ export function DelayChart() {
     );
   }
 
-  // Sort data by hour and filter to only show 06:00-21:00 hours for 1d period
+  // Sort data by hour and filter based on actual time range for 1d period
   const sortedData = [...data]
     .sort((a, b) => new Date(a.hour).getTime() - new Date(b.hour).getTime())
     .filter(item => {
       if (selectedPeriod === '1d') {
+        // If we have actual time range data, use it to filter
+        if (actualTimeRange) {
+          const itemTime = new Date(item.hour);
+          const firstDeparture = new Date(actualTimeRange.first_departure);
+          const lastDeparture = new Date(actualTimeRange.last_departure);
+          return itemTime >= firstDeparture && itemTime <= lastDeparture;
+        }
+        // Fallback to 06:00-21:00 if no actual time range
         const hour = new Date(item.hour).getHours();
         return hour >= 6 && hour <= 21;
       }

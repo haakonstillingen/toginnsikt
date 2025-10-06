@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       // Hourly data for 24-hour view with classification metrics - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00') as hour,
+          TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00') as hour,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.delay_minutes > 0 THEN 1 ELSE 0 END) as delayed_departures,
           AVG(CASE WHEN ad.delay_minutes > 0 THEN ad.delay_minutes END) as avg_delay,
@@ -87,14 +87,14 @@ export async function GET(request: NextRequest) {
         WHERE pd.planned_departure_time >= $1 
           AND pd.planned_departure_time <= $2
           ${routeFilter}
-        GROUP BY TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
+        GROUP BY TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
         ORDER BY hour
       `;
     } else {
       // Daily data for 7d, 30d, 90d views with classification metrics - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD') as hour,
+          TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD') as hour,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.delay_minutes > 0 THEN 1 ELSE 0 END) as delayed_departures,
           AVG(CASE WHEN ad.delay_minutes > 0 THEN ad.delay_minutes END) as avg_delay,
@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
         WHERE pd.planned_departure_time >= $1 
           AND pd.planned_departure_time <= $2
           ${routeFilter}
-        GROUP BY TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
+        GROUP BY TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
         ORDER BY hour
       `;
     }
@@ -127,8 +127,8 @@ export async function GET(request: NextRequest) {
     if (period === '1d' && data.rows.length > 0) {
       const timeRangeQuery = `
         SELECT 
-          MIN(TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as first_departure,
-          MAX(TO_CHAR(pd.planned_departure_time::timestamp AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as last_departure
+          MIN(TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as first_departure,
+          MAX(TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as last_departure
         FROM actual_departures ad
         JOIN planned_departures pd ON ad.planned_departure_id = pd.id
         JOIN commute_routes cr ON pd.route_id = cr.id
