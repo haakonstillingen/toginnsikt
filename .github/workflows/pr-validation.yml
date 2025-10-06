@@ -14,11 +14,11 @@ jobs:
 
       - name: Validate PR Requirements
         run: |
-          PR_NUMBER="${{ github.event.number }}"
-          PR_TITLE="${{ github.event.pull_request.title }}"
-          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
-          BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
-          HEAD_BRANCH="${{ github.event.pull_request.head.ref }}"
+          PR_NUMBER='${{ github.event.number }}'
+          PR_TITLE='${{ github.event.pull_request.title }}'
+          PR_AUTHOR='${{ github.event.pull_request.user.login }}'
+          BASE_BRANCH='${{ github.event.pull_request.base.ref }}'
+          HEAD_BRANCH='${{ github.event.pull_request.head.ref }}'
           
           echo "🔍 Validating Pull Request #$PR_NUMBER"
           echo "PR Title: $PR_TITLE"
@@ -27,7 +27,7 @@ jobs:
           echo "Head Branch: $HEAD_BRANCH"
           
           # Check if PR references an issue
-          PR_BODY="${{ github.event.pull_request.body }}"
+          PR_BODY='${{ github.event.pull_request.body }}'
           if echo "$PR_BODY" | grep -q "#[0-9]"; then
             echo "✅ PR references an issue"
           else
