@@ -176,7 +176,7 @@ class EnhancedCommuteCollectorCloud:
             conn.close()
         
     def load_commute_routes(self) -> List[CommuteRoute]:
-        """Load commute routes from database"""
+        """Load commute routes from database with validation"""
         conn = self.get_db_connection()
         if not conn:
             return []
@@ -185,22 +185,65 @@ class EnhancedCommuteCollectorCloud:
         
         try:
             cursor.execute("""
-                SELECT route_name, source_station_id, source_station_name, 
+                SELECT id, route_name, source_station_id, source_station_name, 
                        target_station_id, target_station_name, final_destination_pattern, direction
                 FROM commute_routes
+                ORDER BY id
             """)
             
             routes = []
+            seen_routes = set()  # Track to detect duplicates
+            
             for row in cursor.fetchall():
-                routes.append(CommuteRoute(
-                    route_name=row[0],
-                    source_station_id=row[1],
-                    source_station_name=row[2],
-                    target_station_id=row[3],
-                    target_station_name=row[4],
-                    final_destination_pattern=row[5],
-                    direction=row[6]
-                ))
+                route_id = row[0]
+                route_name = row[1]
+                source_station_id = row[2]
+                source_station_name = row[3]
+                target_station_id = row[4]
+                target_station_name = row[5]
+                final_destination_pattern = row[6]
+                direction = row[7]
+                
+                # Validate route has required pattern
+                if not final_destination_pattern or final_destination_pattern.strip() == '':
+                    self.logger.warning(
+                        f"Skipping route {route_id} ({route_name}): "
+                        f"Missing or empty final_destination_pattern. "
+                        f"This route will not collect any departures."
+                    )
+                    continue
+                
+                # Check for duplicate route definitions (same source and target)
+                route_key = (source_station_id, target_station_id, route_name)
+                if route_key in seen_routes:
+                    self.logger.warning(
+                        f"Skipping duplicate route {route_id} ({route_name}): "
+                        f"{source_station_name} → {target_station_name}"
+                    )
+                    continue
+                
+                seen_routes.add(route_key)
+                
+                route = CommuteRoute(
+                    route_name=route_name,
+                    source_station_id=source_station_id,
+                    source_station_name=source_station_name,
+                    target_station_id=target_station_id,
+                    target_station_name=target_station_name,
+                    final_destination_pattern=final_destination_pattern,
+                    direction=direction
+                )
+                
+                routes.append(route)
+                self.logger.info(
+                    f"Loaded route: {route_name} ({source_station_name} → {target_station_name}), "
+                    f"Pattern: '{final_destination_pattern}'"
+                )
+            
+            if not routes:
+                self.logger.error("No valid routes loaded from database!")
+            else:
+                self.logger.info(f"Successfully loaded {len(routes)} valid route(s)")
             
             return routes
         except Exception as e:
@@ -319,8 +362,21 @@ class EnhancedCommuteCollectorCloud:
             # Get final destination
             final_destination = call.get('destinationDisplay', {}).get('frontText', '')
             
-            # Check if this matches our route's final destination pattern (skip if pattern is empty)
-            if route.final_destination_pattern and not self.matches_final_destination(final_destination, route.final_destination_pattern):
+            # Check if this matches our route's final destination pattern
+            # Pattern should always be present due to validation in load_commute_routes()
+            if not route.final_destination_pattern:
+                self.logger.error(
+                    f"Route {route.route_name} has no pattern - this should not happen! "
+                    f"Skipping departure to {final_destination}"
+                )
+                continue
+            
+            if not self.matches_final_destination(final_destination, route.final_destination_pattern):
+                self.logger.debug(
+                    f"Skipping departure to '{final_destination}' - "
+                    f"does not match pattern '{route.final_destination_pattern}' "
+                    f"for route {route.route_name}"
+                )
                 continue
                 
             planned_departures.append(PlannedDeparture(
