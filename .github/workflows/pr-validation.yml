@@ -179,6 +179,7 @@ jobs:
             echo "✅ cloudbuild.yaml found"
             
             # Install PyYAML for YAML validation
+            python -m pip install --upgrade pip
             pip install PyYAML
             
             # Validate YAML syntax
