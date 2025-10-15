@@ -77,6 +77,11 @@ jobs:
             echo "⚠️ TODO/FIXME comments found - please address before merging"
           fi
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
       - name: Run Code Quality Checks
         run: |
           echo "📊 Running code quality checks..."
@@ -91,11 +96,6 @@ jobs:
           if grep -r "print(" --include="*.py" . | grep -v "test"; then
             echo "⚠️ Print statements found - consider using logging"
           fi
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.13'
 
       - name: Test Configuration
         run: |
