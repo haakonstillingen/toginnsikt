@@ -92,11 +92,17 @@ jobs:
             echo "⚠️ Print statements found - consider using logging"
           fi
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
       - name: Test Configuration
         run: |
           echo "🧪 Testing configuration..."
           
           # Install required dependencies for testing
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
           
           # Test if config can be imported
@@ -140,6 +146,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.13'
+
       - name: Test Docker Build
         run: |
           echo "🐳 Testing Docker build..."
@@ -166,6 +177,9 @@ jobs:
           
           if [ -f "cloudbuild.yaml" ]; then
             echo "✅ cloudbuild.yaml found"
+            
+            # Install PyYAML for YAML validation
+            pip install PyYAML
             
             # Validate YAML syntax
             python -c "import yaml; yaml.safe_load(open('cloudbuild.yaml')); print('✅ cloudbuild.yaml syntax valid')"
