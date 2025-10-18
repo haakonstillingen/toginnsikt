@@ -235,10 +235,16 @@ export function DelayChart() {
                     });
                   }
                 }}
-                formatter={(value, name) => [
-                  `${value} avganger`,
-                  chartConfig[name as keyof typeof chartConfig]?.label || name
-                ]}
+                formatter={(value, name) => {
+                  // Only show categories with non-zero values
+                  if (value === 0 || value === undefined || value === null) {
+                    return null;
+                  }
+                  return [
+                    `${value} avganger`,
+                    chartConfig[name as keyof typeof chartConfig]?.label || name
+                  ];
+                }}
               />
             }
           />
