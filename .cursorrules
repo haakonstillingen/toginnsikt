@@ -184,6 +184,113 @@ def test_behavior_description(self):
 - [ ] Mocks used appropriately
 - [ ] Test coverage adequate for critical paths
 
+## File Organization Guidelines
+
+### Test Scripts Organization
+**ALL test scripts must be placed in `debug_and_test_scripts/` folder:**
+
+- **Unit Tests**: `debug_and_test_scripts/test_<component>.py`
+- **Integration Tests**: `debug_and_test_scripts/test_<component>_integration.py`
+- **E2E Tests**: `debug_and_test_scripts/test_<component>_e2e.py`
+- **Test Runners**: `debug_and_test_scripts/run_<component>_tests.py`
+- **Analysis Scripts**: `debug_and_test_scripts/analyze_<purpose>.py`
+- **Debug Scripts**: `debug_and_test_scripts/debug_<issue>.py`
+- **Check Scripts**: `debug_and_test_scripts/check_<status>.py`
+- **Monitor Scripts**: `debug_and_test_scripts/monitor_<system>.py`
+
+**NEVER place test scripts in the root directory!**
+
+### Documentation Organization
+**ALL documentation must be placed in `docs/` folder with proper categorization:**
+
+#### Architecture Documentation (`docs/architecture/`)
+- System design documents
+- Business intelligence metrics
+- Collection strategies
+- API specifications
+- Database schemas
+
+#### Testing Documentation (`docs/testing/`)
+- TDD guidelines
+- Testing strategies
+- Test implementation summaries
+- Quality assurance processes
+
+#### Deployment Documentation (`docs/deployment/`)
+- Migration guides
+- Deployment procedures
+- Infrastructure setup
+- Configuration guides
+- Setup scripts (`.sh` files)
+
+#### Development Documentation (`docs/development/`)
+- Project status and todos
+- Development workflows
+- Coding standards
+- Development environment setup
+
+### File Naming Conventions
+- **Documentation**: `lowercase-with-hyphens.md`
+- **Test Scripts**: `test_<component>_<purpose>.py`
+- **Analysis Scripts**: `analyze_<purpose>.py`
+- **Debug Scripts**: `debug_<issue>.py`
+- **Setup Scripts**: `setup-<purpose>.sh`
+
+### Root Directory Rules
+**ONLY these types of files belong in the root directory:**
+- Core application files (`.py` files that are part of the main application)
+- Configuration files (`.yaml`, `.json`, `.txt` for configuration)
+- Deployment files (`Dockerfile`, `deploy.sh`, `cloudbuild.yaml`)
+- Project metadata (`README.md`, `.gitignore`, `.cursorrules`)
+- Dependencies (`requirements.txt`, `package.json`)
+
+**NEVER place in root directory:**
+- Test scripts (go to `debug_and_test_scripts/`)
+- Documentation (go to `docs/`)
+- Log files (should be in `.gitignore`)
+- Cache files (should be in `.gitignore`)
+- Temporary files (should be in `.gitignore`)
+
+### Code Review Checklist for File Organization
+- [ ] Test scripts are in `debug_and_test_scripts/`
+- [ ] Documentation is in appropriate `docs/` subfolder
+- [ ] Root directory contains only production files
+- [ ] File names follow naming conventions
+- [ ] No temporary or cache files in repository
+- [ ] Proper categorization of documentation
+
+### For Cursor Agents - File Organization Rules
+**When creating new files, ALWAYS follow these rules:**
+
+1. **Creating Test Scripts:**
+   - Place ALL test files in `debug_and_test_scripts/`
+   - Use naming pattern: `test_<component>_<purpose>.py`
+   - Examples: `test_route_validation.py`, `test_api_integration.py`
+
+2. **Creating Documentation:**
+   - Place ALL `.md` files in appropriate `docs/` subfolder
+   - Architecture docs → `docs/architecture/`
+   - Testing docs → `docs/testing/`
+   - Deployment docs → `docs/deployment/`
+   - Development docs → `docs/development/`
+
+3. **Creating Analysis/Debug Scripts:**
+   - Place in `debug_and_test_scripts/`
+   - Use naming pattern: `analyze_<purpose>.py`, `debug_<issue>.py`
+
+4. **Creating Setup Scripts:**
+   - Place in `docs/deployment/` (not root directory)
+   - Use naming pattern: `setup-<purpose>.sh`
+
+5. **NEVER create in root directory:**
+   - Test scripts
+   - Documentation files
+   - Analysis scripts
+   - Debug scripts
+   - Setup scripts
+
+**Before creating any file, ask: "Is this a production file or a test/debug/documentation file?"**
+
 ## Dependencies
 - Python: psycopg2, requests, python-dateutil
 - Frontend: Next.js, React, TypeScript, Tailwind CSS
