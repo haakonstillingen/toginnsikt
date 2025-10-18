@@ -137,6 +137,53 @@ interface ApiResponse<T> {
 - Configuration files in root directory
 - Documentation files with .md extension
 
+## Test-Driven Development (TDD)
+
+### TDD Principles
+- **Red-Green-Refactor Cycle**: Write failing test → Make it pass → Refactor
+- **Test-First Development**: Always write tests before implementation
+- **Three Laws of TDD**: No production code without failing test, minimal test to fail, minimal code to pass
+
+### Test Categories
+- **Unit Tests** (`test_*.py`): Fast, isolated, mocked dependencies
+- **Integration Tests** (`test_*_integration.py`): Real database/API, medium speed
+- **E2E Tests** (`test_*_e2e.py`): Full pipeline, slow but comprehensive
+
+### Test Structure
+```python
+def test_behavior_description(self):
+    """Test specific behavior with descriptive name"""
+    # ARRANGE - Set up test data
+    # ACT - Execute code under test  
+    # ASSERT - Verify results
+```
+
+### TDD Workflow for Cursor Agents
+1. **Analysis**: Understand requirement and identify test scenarios
+2. **Red Phase**: Write failing tests that describe desired behavior
+3. **Green Phase**: Write minimal code to make tests pass
+4. **Refactor Phase**: Improve code while keeping tests green
+5. **Repeat**: Continue cycle for each new feature
+
+### Test Naming Conventions
+- Test methods: `test_<behavior>_<scenario>`
+- Test classes: `Test<ComponentName>`
+- Test files: `test_<component>.py`, `test_<component>_integration.py`, `test_<component>_e2e.py`
+
+### Mocking Guidelines
+- Mock external APIs, database connections, file operations
+- Use realistic test data from `debug_and_test_scripts/testdata/`
+- Test error scenarios and edge cases
+- Keep tests isolated and independent
+
+### Code Review Checklist
+- [ ] Tests written before implementation
+- [ ] Tests cover happy path and error cases
+- [ ] Tests are readable and well-named
+- [ ] Tests run independently
+- [ ] Mocks used appropriately
+- [ ] Test coverage adequate for critical paths
+
 ## Dependencies
 - Python: psycopg2, requests, python-dateutil
 - Frontend: Next.js, React, TypeScript, Tailwind CSS
