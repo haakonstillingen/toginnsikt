@@ -131,6 +131,7 @@ export function DelayChart() {
     }))
     .filter(item => item.totalDepartures > 0); // Only show hours with actual departures
 
+
   // Check if we have any valid data after processing
   if (sortedData.length === 0) {
     return (
@@ -181,106 +182,82 @@ export function DelayChart() {
           'Ingen data tilgjengelig'
         )}
       </p>
-      <ChartContainer config={chartConfig} className="h-80 w-full">
-        <BarChart data={sortedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="hour" 
-            tickFormatter={(value) => {
-              const date = new Date(value);
-              // Format based on selected period
-              if (selectedPeriod === '1d') {
-                // For 24 hours, show hour only
-                return date.toLocaleTimeString('no-NO', { 
-                  hour: '2-digit'
-                });
-              } else {
-                // For 7d, 30d, 90d, show dd.mm format
+      {/* Simple chart test - basic Recharts implementation */}
+      <div className="h-80 w-full">
+        <ChartContainer config={chartConfig} className="h-full w-full">
+          <BarChart data={sortedData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis 
+              dataKey="hour" 
+              tickFormatter={(value) => {
+                const date = new Date(value);
                 return date.toLocaleDateString('no-NO', { 
                   day: '2-digit',
                   month: '2-digit'
                 });
+              }}
+            />
+            <YAxis 
+              orientation="left"
+              tickFormatter={(value) => `${value}`}
+              label={{ value: 'Antall avganger', angle: -90, position: 'insideLeft' }}
+            />
+            <ChartTooltip 
+              content={
+                <ChartTooltipContent 
+                  labelFormatter={(value) => {
+                    const date = new Date(value);
+                    return date.toLocaleDateString('no-NO', {
+                      day: '2-digit',
+                      month: '2-digit'
+                    });
+                  }}
+                  formatter={(value, name) => {
+                    // Only show categories with non-zero values
+                    if (value === 0 || value === undefined || value === null) {
+                      return null;
+                    }
+                    return [
+                      `${value} avganger`,
+                      chartConfig[name as keyof typeof chartConfig]?.label || name
+                    ];
+                  }}
+                />
               }
-            }}
-          />
-          <YAxis 
-            orientation="left"
-            tickFormatter={(value) => `${value}`}
-            label={{ value: 'Antall avganger', angle: -90, position: 'insideLeft' }}
-          />
-          <ChartTooltip 
-            content={
-              <ChartTooltipContent 
-                labelFormatter={(value) => {
-                  const date = new Date(value);
-                  // Format tooltip based on selected period
-                  if (selectedPeriod === '1d') {
-                    return date.toLocaleString('no-NO', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    });
-                  } else if (selectedPeriod === '7d') {
-                    return date.toLocaleString('no-NO', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    });
-                  } else {
-                    return date.toLocaleString('no-NO', {
-                      day: '2-digit',
-                      month: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    });
-                  }
-                }}
-                formatter={(value, name) => {
-                  // Only show categories with non-zero values
-                  if (value === 0 || value === undefined || value === null) {
-                    return null;
-                  }
-                  return [
-                    `${value} avganger`,
-                    chartConfig[name as keyof typeof chartConfig]?.label || name
-                  ];
-                }}
-              />
-            }
-          />
-          {/* Stacked bars for service categorization */}
-          <Bar 
-            dataKey="onTimeDepartures" 
-            stackId="service"
-            fill={chartConfig.onTimeDepartures.color}
-            name="onTimeDepartures"
-          />
-          <Bar 
-            dataKey="delayedClassified" 
-            stackId="service"
-            fill={chartConfig.delayedClassified.color}
-            name="delayedClassified"
-          />
-          <Bar 
-            dataKey="severelyDelayed" 
-            stackId="service"
-            fill={chartConfig.severelyDelayed.color}
-            name="severelyDelayed"
-          />
-          <Bar 
-            dataKey="cancelledDepartures" 
-            stackId="service"
-            fill={chartConfig.cancelledDepartures.color}
-            name="cancelledDepartures"
-          />
-          <Bar 
-            dataKey="unknownDepartures" 
-            stackId="service"
-            fill={chartConfig.unknownDepartures.color}
-            name="unknownDepartures"
-          />
-        </BarChart>
-      </ChartContainer>
+            />
+            <Bar 
+              dataKey="onTimeDepartures" 
+              stackId="service"
+              fill={chartConfig.onTimeDepartures.color}
+              name="onTimeDepartures"
+            />
+            <Bar 
+              dataKey="delayedClassified" 
+              stackId="service"
+              fill={chartConfig.delayedClassified.color}
+              name="delayedClassified"
+            />
+            <Bar 
+              dataKey="severelyDelayed" 
+              stackId="service"
+              fill={chartConfig.severelyDelayed.color}
+              name="severelyDelayed"
+            />
+            <Bar 
+              dataKey="cancelledDepartures"
+              stackId="service"
+              fill={chartConfig.cancelledDepartures.color}
+              name="cancelledDepartures"
+            />
+            <Bar 
+              dataKey="unknownDepartures"
+              stackId="service"
+              fill={chartConfig.unknownDepartures.color}
+              name="unknownDepartures"
+            />
+          </BarChart>
+        </ChartContainer>
+      </div>
       
       {/* Legend */}
       <div className="mt-4 flex flex-wrap gap-4 justify-center">
