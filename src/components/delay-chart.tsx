@@ -191,10 +191,17 @@ export function DelayChart() {
               dataKey="hour" 
               tickFormatter={(value) => {
                 const date = new Date(value);
-                return date.toLocaleDateString('no-NO', { 
-                  day: '2-digit',
-                  month: '2-digit'
-                });
+                if (selectedPeriod === '1d') {
+                  return date.toLocaleTimeString('no-NO', { 
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  });
+                } else {
+                  return date.toLocaleDateString('no-NO', { 
+                    day: '2-digit',
+                    month: '2-digit'
+                  });
+                }
               }}
             />
             <YAxis 
@@ -207,10 +214,17 @@ export function DelayChart() {
                 <ChartTooltipContent 
                   labelFormatter={(value) => {
                     const date = new Date(value);
-                    return date.toLocaleDateString('no-NO', {
-                      day: '2-digit',
-                      month: '2-digit'
-                    });
+                    if (selectedPeriod === '1d') {
+                      return date.toLocaleTimeString('no-NO', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      });
+                    } else {
+                      return date.toLocaleDateString('no-NO', {
+                        day: '2-digit',
+                        month: '2-digit'
+                      });
+                    }
                   }}
                   formatter={(value, name) => {
                     // Only show categories with non-zero values
