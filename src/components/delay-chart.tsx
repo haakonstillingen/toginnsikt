@@ -114,9 +114,8 @@ export function DelayChart() {
           const lastDeparture = new Date(actualTimeRange.last_departure);
           return itemTime >= firstDeparture && itemTime <= lastDeparture;
         }
-        // Fallback to 06:00-21:00 if no actual time range
-        const hour = new Date(item.hour).getHours();
-        return hour >= 6 && hour <= 21;
+        // Show all hours if no actual time range (let actual data determine range)
+        return true;
       }
       return true; // For daily data (7d, 30d, 90d), don't filter by hour
     })
