@@ -28,14 +28,14 @@ export async function GET(request: NextRequest) {
         // Last 24 hours: use selected date or current date
         if (selectedDate) {
           const targetDate = new Date(selectedDate);
-          // Set to 06:00 of the selected date
-          targetDate.setHours(6, 0, 0, 0);
+          // Set to 00:00 of the selected date to capture all departures
+          targetDate.setHours(0, 0, 0, 0);
           startDate = targetDate;
           endDate = new Date(targetDate.getTime() + 24 * 60 * 60 * 1000);
         } else {
-          // Default: 06:00 of current day to 06:00 of next day
+          // Default: 00:00 of current day to 00:00 of next day to capture all departures
           const today = new Date(now);
-          today.setHours(6, 0, 0, 0);
+          today.setHours(0, 0, 0, 0);
           startDate = today;
           endDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
         }
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
       // Hourly data for 24-hour view with classification metrics - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00') as hour,
+          TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00') as hour,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.delay_minutes > 0 THEN 1 ELSE 0 END) as delayed_departures,
           AVG(CASE WHEN ad.delay_minutes > 0 THEN ad.delay_minutes END) as avg_delay,
@@ -84,17 +84,17 @@ export async function GET(request: NextRequest) {
         FROM actual_departures ad
         JOIN planned_departures pd ON ad.planned_departure_id = pd.id
         JOIN commute_routes cr ON pd.route_id = cr.id
-        WHERE pd.planned_departure_time >= $1 
-          AND pd.planned_departure_time <= $2
+        WHERE ad.actual_departure_time >= $1 
+          AND ad.actual_departure_time <= $2
           ${routeFilter}
-        GROUP BY TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
+        GROUP BY TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:00:00')
         ORDER BY hour
       `;
     } else {
       // Daily data for 7d, 30d, 90d views with classification metrics - converted to Norwegian local time
       query = `
         SELECT 
-          TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD') as hour,
+          TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD') as hour,
           COUNT(*) as total_departures,
           SUM(CASE WHEN ad.delay_minutes > 0 THEN 1 ELSE 0 END) as delayed_departures,
           AVG(CASE WHEN ad.delay_minutes > 0 THEN ad.delay_minutes END) as avg_delay,
@@ -108,10 +108,10 @@ export async function GET(request: NextRequest) {
         FROM actual_departures ad
         JOIN planned_departures pd ON ad.planned_departure_id = pd.id
         JOIN commute_routes cr ON pd.route_id = cr.id
-        WHERE pd.planned_departure_time >= $1 
-          AND pd.planned_departure_time <= $2
+        WHERE ad.actual_departure_time >= $1 
+          AND ad.actual_departure_time <= $2
           ${routeFilter}
-        GROUP BY TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
+        GROUP BY TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD')
         ORDER BY hour
       `;
     }
@@ -127,13 +127,13 @@ export async function GET(request: NextRequest) {
     if (period === '1d' && data.rows.length > 0) {
       const timeRangeQuery = `
         SELECT 
-          MIN(TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as first_departure,
-          MAX(TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as last_departure
+          MIN(TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as first_departure,
+          MAX(TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS')) as last_departure
         FROM actual_departures ad
         JOIN planned_departures pd ON ad.planned_departure_id = pd.id
         JOIN commute_routes cr ON pd.route_id = cr.id
-        WHERE pd.planned_departure_time >= $1 
-          AND pd.planned_departure_time <= $2
+        WHERE ad.actual_departure_time >= $1 
+          AND ad.actual_departure_time <= $2
           ${routeFilter}
       `;
       const timeRangeResult = await client.query(timeRangeQuery, [
@@ -143,7 +143,7 @@ export async function GET(request: NextRequest) {
       actualTimeRange = timeRangeResult.rows[0];
     }
     
-    // Get summary stats with business intelligence metrics, focusing on morning and after-work hours (06:00-21:00)
+    // Get summary stats with business intelligence metrics for all collected departures
     const statsQuery = `
       SELECT 
         COUNT(*) as total_departures,
@@ -158,10 +158,8 @@ export async function GET(request: NextRequest) {
       FROM actual_departures ad
       JOIN planned_departures pd ON ad.planned_departure_id = pd.id
       JOIN commute_routes cr ON pd.route_id = cr.id
-      WHERE pd.planned_departure_time >= $1 
-        AND pd.planned_departure_time <= $2
-        AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp) >= 6
-        AND EXTRACT(HOUR FROM pd.planned_departure_time::timestamp) <= 21
+      WHERE ad.actual_departure_time >= $1 
+        AND ad.actual_departure_time <= $2
         ${routeFilter}
     `;
     
