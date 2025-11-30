@@ -797,12 +797,24 @@ class EnhancedCommuteCollectorCloud:
                                       f"Setting delay_minutes to None to prevent phantom delay.")
                     actual.delay_minutes = None
                 
+                # Only mark as COLLECTED if we have actual departure time
+                # Future departures without actual_departure_time should remain PENDING
+                # so they can be re-queried later when the train actually departs
+                if actual.actual_departure_time is not None:
+                    collection_status = CollectionStatus.COLLECTED.value
+                else:
+                    # Keep as PENDING if we only have expected time but no actual time yet
+                    collection_status = CollectionStatus.PENDING.value
+                    self.logger.debug(f"Keeping departure {planned_id} as PENDING: "
+                                    f"has expected_time={actual.expected_departure_time is not None}, "
+                                    f"but no actual_departure_time yet")
+                
                 # Update planned departure status
                 cursor.execute("""
                     UPDATE planned_departures 
                     SET collection_status = %s, retry_count = retry_count + 1, last_retry_time = %s
                     WHERE id = %s
-                """, (CollectionStatus.COLLECTED.value, datetime.now(timezone.utc), planned_id))
+                """, (collection_status, datetime.now(timezone.utc), planned_id))
                 
                 # Insert actual departure with business intelligence fields
                 cursor.execute("""
