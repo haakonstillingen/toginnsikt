@@ -414,7 +414,11 @@ class EnhancedCommuteCollectorCloud:
             return 60
 
     def get_pending_departures(self) -> List[PlannedDeparture]:
-        """Get departures that need actual data collection"""
+        """Get departures that need actual data collection
+        
+        Includes departures up to 30 minutes in the future to allow proactive collection.
+        This prevents missing departures that are just minutes ahead when the query runs.
+        """
         conn = self.get_db_connection()
         if not conn:
             return []
@@ -424,6 +428,8 @@ class EnhancedCommuteCollectorCloud:
         try:
             now = datetime.now(timezone.utc)
             cutoff_time = now - timedelta(hours=self.data_retention_hours)
+            # Include departures up to 30 minutes in the future for proactive collection
+            future_window = now + timedelta(minutes=30)
             
             cursor.execute("""
                 SELECT pd.id, pd.planned_departure_time, pd.service_journey_id, 
@@ -435,7 +441,7 @@ class EnhancedCommuteCollectorCloud:
                 AND pd.planned_departure_time >= %s
                 AND pd.planned_departure_time <= %s
                 ORDER BY pd.planned_departure_time
-            """, (cutoff_time, now))
+            """, (cutoff_time, future_window))
             
             departures = []
             for row in cursor.fetchall():
