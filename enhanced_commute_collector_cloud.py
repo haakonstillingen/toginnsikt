@@ -802,19 +802,34 @@ class EnhancedCommuteCollectorCloud:
                 # so they can be re-queried later when the train actually departs
                 if actual.actual_departure_time is not None:
                     collection_status = CollectionStatus.COLLECTED.value
+                    # Only increment retry_count when we actually collect data
+                    # This represents a successful collection attempt
+                    increment_retry = True
                 else:
                     # Keep as PENDING if we only have expected time but no actual time yet
                     collection_status = CollectionStatus.PENDING.value
+                    # Don't increment retry_count for proactive queries of future departures
+                    # These are not failed attempts, just early queries before train departs
+                    increment_retry = False
                     self.logger.debug(f"Keeping departure {planned_id} as PENDING: "
                                     f"has expected_time={actual.expected_departure_time is not None}, "
                                     f"but no actual_departure_time yet")
                 
                 # Update planned departure status
-                cursor.execute("""
-                    UPDATE planned_departures 
-                    SET collection_status = %s, retry_count = retry_count + 1, last_retry_time = %s
-                    WHERE id = %s
-                """, (collection_status, datetime.now(timezone.utc), planned_id))
+                # Only increment retry_count for actual collection attempts, not proactive queries
+                if increment_retry:
+                    cursor.execute("""
+                        UPDATE planned_departures 
+                        SET collection_status = %s, retry_count = retry_count + 1, last_retry_time = %s
+                        WHERE id = %s
+                    """, (collection_status, datetime.now(timezone.utc), planned_id))
+                else:
+                    # Update last_retry_time to track when we last checked, but don't increment retry_count
+                    cursor.execute("""
+                        UPDATE planned_departures 
+                        SET collection_status = %s, last_retry_time = %s
+                        WHERE id = %s
+                    """, (collection_status, datetime.now(timezone.utc), planned_id))
                 
                 # Insert actual departure with business intelligence fields
                 cursor.execute("""
