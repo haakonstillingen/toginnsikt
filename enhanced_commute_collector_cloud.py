@@ -797,14 +797,19 @@ class EnhancedCommuteCollectorCloud:
                                       f"Setting delay_minutes to None to prevent phantom delay.")
                     actual.delay_minutes = None
                 
-                # Only mark as COLLECTED if we have actual departure time
-                # Future departures without actual_departure_time should remain PENDING
+                # Mark as COLLECTED if we have actual departure time OR if train is cancelled
+                # - Actual departure time: train has departed, we have complete data
+                # - Cancelled: train is cancelled, we have cancellation info, no need to re-query
+                # Future departures without actual_departure_time and not cancelled should remain PENDING
                 # so they can be re-queried later when the train actually departs
-                if actual.actual_departure_time is not None:
+                if actual.actual_departure_time is not None or actual.is_cancelled:
                     collection_status = CollectionStatus.COLLECTED.value
                     # Only increment retry_count when we actually collect data
                     # This represents a successful collection attempt
                     increment_retry = True
+                    if actual.is_cancelled:
+                        self.logger.debug(f"Marking cancelled departure {planned_id} as COLLECTED: "
+                                        f"train cancelled, no need to re-query")
                 else:
                     # Keep as PENDING if we only have expected time but no actual time yet
                     collection_status = CollectionStatus.PENDING.value
