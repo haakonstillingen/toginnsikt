@@ -68,7 +68,7 @@ COMMUTE_ROUTES = [
         'source_station_name': 'Myrvoll',
         'target_station_id': 'NSR:StopPlace:337',
         'target_station_name': 'Oslo S',
-        'final_destination_pattern': 'Lysaker|Stabekk',
+        'final_destination_pattern': '',  # Empty pattern: collect all L2 departures (no filtering)
         'direction': 'westbound'
     },
     {
