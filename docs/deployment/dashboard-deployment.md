@@ -44,8 +44,8 @@ gcloud builds submit --config toginnsikt-dashboard/cloudbuild.yaml
 For production deployments, store the database password in Google Secret Manager:
 
 ```bash
-# Create secret
-echo -n "fPl21YN#cF0RngM9" | gcloud secrets create db-password \
+# Create secret (replace YOUR_PASSWORD_HERE with actual password)
+echo -n "YOUR_PASSWORD_HERE" | gcloud secrets create db-password \
   --data-file=- \
   --replication-policy="automatic"
 
