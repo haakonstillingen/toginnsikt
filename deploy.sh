@@ -5,12 +5,17 @@
 
 set -e
 
-# Get project ID from argument or environment
+# Get project ID from argument, environment, or gcloud config
 PROJECT_ID=${1:-$GOOGLE_CLOUD_PROJECT}
+
+if [ -z "$PROJECT_ID" ]; then
+    PROJECT_ID=$(gcloud config get-value project 2>/dev/null)
+fi
 
 if [ -z "$PROJECT_ID" ]; then
     echo "Error: PROJECT_ID not provided. Usage: ./deploy.sh [PROJECT_ID]"
     echo "Or set GOOGLE_CLOUD_PROJECT environment variable"
+    echo "Or configure gcloud: gcloud config set project PROJECT_ID"
     exit 1
 fi
 
