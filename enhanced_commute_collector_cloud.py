@@ -204,14 +204,15 @@ class EnhancedCommuteCollectorCloud:
                 final_destination_pattern = row[6]
                 direction = row[7]
                 
-                # Validate route has required pattern
-                if not final_destination_pattern or final_destination_pattern.strip() == '':
+                # Empty pattern is allowed - it means collect all L2 departures (no filtering)
+                # Only warn if pattern is None (not set), not if it's empty string
+                if final_destination_pattern is None:
                     self.logger.warning(
-                        f"Skipping route {route_id} ({route_name}): "
-                        f"Missing or empty final_destination_pattern. "
-                        f"This route will not collect any departures."
+                        f"Route {route_id} ({route_name}): "
+                        f"final_destination_pattern is None. "
+                        f"Using empty pattern to collect all L2 departures."
                     )
-                    continue
+                    final_destination_pattern = ''
                 
                 # Check for duplicate route definitions using direction instead of route_name
                 # This ensures only ONE morning and ONE afternoon route per station pair
@@ -364,21 +365,21 @@ class EnhancedCommuteCollectorCloud:
             final_destination = call.get('destinationDisplay', {}).get('frontText', '')
             
             # Check if this matches our route's final destination pattern
-            # Pattern should always be present due to validation in load_commute_routes()
-            if not route.final_destination_pattern:
-                self.logger.error(
-                    f"Route {route.route_name} has no pattern - this should not happen! "
-                    f"Skipping departure to {final_destination}"
-                )
-                continue
-            
-            if not self.matches_final_destination(final_destination, route.final_destination_pattern):
+            # Empty pattern means collect all departures (no filtering)
+            if route.final_destination_pattern and route.final_destination_pattern.strip():
+                if not self.matches_final_destination(final_destination, route.final_destination_pattern):
+                    self.logger.debug(
+                        f"Skipping departure to '{final_destination}' - "
+                        f"does not match pattern '{route.final_destination_pattern}' "
+                        f"for route {route.route_name}"
+                    )
+                    continue
+            else:
+                # No pattern means collect all L2 departures for this route
                 self.logger.debug(
-                    f"Skipping departure to '{final_destination}' - "
-                    f"does not match pattern '{route.final_destination_pattern}' "
-                    f"for route {route.route_name}"
+                    f"Collecting all L2 departure to '{final_destination}' "
+                    f"(no destination filter for route {route.route_name})"
                 )
-                continue
                 
             planned_departures.append(PlannedDeparture(
                 planned_departure_time=departure_time,

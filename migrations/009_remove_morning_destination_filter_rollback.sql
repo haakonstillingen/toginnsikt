@@ -1,4 +1,4 @@
--- Rollback script for migration 007_remove_morning_destination_filter.sql
+-- Rollback script for migration 009_remove_morning_destination_filter.sql
 -- Restores the destination filter pattern for Morning Commute route
 -- WARNING: This will restore the restrictive filter that was causing missing departures
 

@@ -1,4 +1,4 @@
--- Migration 007: Remove destination filtering from morning route
+-- Migration 009: Remove destination filtering from morning route
 -- Collect ALL L2 departures from Myrvoll (they all go through Oslo S)
 -- The destination filter was too restrictive, causing us to miss 2 departures per hour
 -- VY.no shows 4 departures per hour, but we were only collecting 2
