@@ -1,12 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
-const pool = new Pool({
+// Validate required environment variables
+const requiredEnvVars = {
+  DB_HOST: process.env.DB_HOST,
+  DB_PORT: process.env.DB_PORT,
+  DB_NAME: process.env.DB_NAME,
+  DB_USER: process.env.DB_USER,
+  DB_PASSWORD: process.env.DB_PASSWORD,
+};
+
+// Check for missing environment variables
+const missingVars = Object.entries(requiredEnvVars)
+  .filter(([_, value]) => !value)
+  .map(([key]) => key);
+
+if (missingVars.length > 0) {
+  console.error('Missing environment variables:', missingVars);
+  throw new Error(
+    `Missing required environment variables: ${missingVars.join(', ')}`
+  );
+}
+
+// Debug: Log if env vars are loaded (without showing password)
+console.log('DB connection config:', {
   host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '5432'),
+  port: process.env.DB_PORT,
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+  passwordSet: !!process.env.DB_PASSWORD,
+  passwordLength: process.env.DB_PASSWORD?.length || 0
+});
+
+const pool = new Pool({
+  host: process.env.DB_HOST!,
+  port: parseInt(process.env.DB_PORT || '5432', 10),
+  database: process.env.DB_NAME!,
+  user: process.env.DB_USER!,
+  password: process.env.DB_PASSWORD!,
   ssl: { rejectUnauthorized: false }
 });
 
@@ -62,7 +93,7 @@ export async function GET(request: NextRequest) {
     if (route) {
       if (route === 'myrvoll-oslo') {
         routeFilter = "AND cr.direction = 'westbound'";
-      } else if (route === 'oslo-myrvoll') {
+      } else if (route === 'oslo-ski') {
         routeFilter = "AND cr.direction = 'eastbound'";
       }
     }
