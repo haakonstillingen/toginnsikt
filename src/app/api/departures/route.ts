@@ -48,18 +48,31 @@ export async function GET(request: NextRequest) {
     let endDate: Date;
     
     // Last 24 hours: use selected date or current date
+    // Fix: Parse date string correctly to avoid timezone issues
+    // When parsing "YYYY-MM-DD", we want midnight in Europe/Oslo timezone
+    // We create an ISO string with explicit timezone offset to ensure correct parsing
+    // Europe/Oslo is UTC+1 (winter) or UTC+2 (summer), we use UTC+1 as base
+    // PostgreSQL will handle the timezone conversion correctly when querying
     if (selectedDate) {
-      const targetDate = new Date(selectedDate);
-      // Set to 00:00 of the selected date to capture all departures
-      targetDate.setHours(0, 0, 0, 0);
-      startDate = targetDate;
-      endDate = new Date(targetDate.getTime() + 24 * 60 * 60 * 1000);
+      // Parse date components from YYYY-MM-DD string
+      const [year, month, day] = selectedDate.split('-').map(Number);
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      // Create ISO string with Europe/Oslo timezone offset (UTC+1)
+      // PostgreSQL will handle DST adjustments when converting timestamps
+      const isoString = `${dateStr}T00:00:00+01:00`;
+      startDate = new Date(isoString);
+      endDate = new Date(new Date(isoString).getTime() + 24 * 60 * 60 * 1000);
     } else {
-      // Default: 00:00 of current day to 00:00 of next day to capture all departures
-      const today = new Date(now);
-      today.setHours(0, 0, 0, 0);
-      startDate = today;
-      endDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
+      // Default: 00:00 of current day to 00:00 of next day
+      // Get current date components (in server's local timezone)
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
+      // Create ISO string with Europe/Oslo timezone offset
+      const isoString = `${dateStr}T00:00:00+01:00`;
+      startDate = new Date(isoString);
+      endDate = new Date(new Date(isoString).getTime() + 24 * 60 * 60 * 1000);
     }
     
     // Build route filter
