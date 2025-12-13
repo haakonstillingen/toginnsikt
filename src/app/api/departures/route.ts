@@ -43,25 +43,6 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Only 1d period is supported for individual departures' }, { status: 400 });
     }
     
-    const now = new Date();
-    
-    // Last 24 hours: use selected date or current date
-    // Fix: Use PostgreSQL's timezone handling to properly account for DST
-    // We'll construct the date range using PostgreSQL's timezone() function
-    // to ensure correct handling of Europe/Oslo timezone (UTC+1/UTC+2)
-    let dateParam: string;
-    if (selectedDate) {
-      // Use the selected date string directly
-      dateParam = selectedDate;
-    } else {
-      // Get current date in YYYY-MM-DD format
-      // Use UTC to avoid timezone issues, then let PostgreSQL handle conversion
-      const year = now.getUTCFullYear();
-      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
-      const day = String(now.getUTCDate()).padStart(2, '0');
-      dateParam = `${year}-${month}-${day}`;
-    }
-    
     // Build route filter
     let routeFilter = '';
     if (route) {
@@ -75,26 +56,62 @@ export async function GET(request: NextRequest) {
     // Query individual departures with all required fields
     // Use PostgreSQL's timezone() function to construct date range in Europe/Oslo timezone
     // This properly handles DST (UTC+1 in winter, UTC+2 in summer)
-    const query = `
-      SELECT 
-        pd.line_code,
-        TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS') as planned_time,
-        TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS') as actual_time,
-        ad.delay_minutes,
-        ad.is_cancelled
-      FROM actual_departures ad
-      JOIN planned_departures pd ON ad.planned_departure_id = pd.id
-      JOIN commute_routes cr ON pd.route_id = cr.id
-      WHERE ad.actual_departure_time >= timezone('Europe/Oslo', $1::date)::timestamptz
-        AND ad.actual_departure_time < timezone('Europe/Oslo', $1::date + interval '1 day')::timestamptz
-        ${routeFilter}
-      ORDER BY pd.planned_departure_time
-    `;
+    // When no date is provided, use PostgreSQL to get current date in Europe/Oslo timezone
+    let query: string;
+    let queryParams: string[];
+    
+    if (selectedDate) {
+      // Use the selected date string directly - PostgreSQL will handle timezone conversion
+      query = `
+        SELECT 
+          pd.line_code,
+          TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS') as planned_time,
+          TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS') as actual_time,
+          ad.delay_minutes,
+          ad.is_cancelled
+        FROM actual_departures ad
+        JOIN planned_departures pd ON ad.planned_departure_id = pd.id
+        JOIN commute_routes cr ON pd.route_id = cr.id
+        WHERE ad.actual_departure_time >= timezone('Europe/Oslo', $1::date)::timestamptz
+          AND ad.actual_departure_time < timezone('Europe/Oslo', $1::date + interval '1 day')::timestamptz
+          ${routeFilter}
+        ORDER BY pd.planned_departure_time
+      `;
+      queryParams = [selectedDate];
+    } else {
+      // Use PostgreSQL to get current date in Europe/Oslo timezone
+      // This ensures we query the correct day regardless of server timezone
+      query = `
+        SELECT 
+          pd.line_code,
+          TO_CHAR(pd.planned_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS') as planned_time,
+          TO_CHAR(ad.actual_departure_time AT TIME ZONE 'Europe/Oslo', 'YYYY-MM-DD HH24:MI:SS') as actual_time,
+          ad.delay_minutes,
+          ad.is_cancelled
+        FROM actual_departures ad
+        JOIN planned_departures pd ON ad.planned_departure_id = pd.id
+        JOIN commute_routes cr ON pd.route_id = cr.id
+        WHERE ad.actual_departure_time >= timezone('Europe/Oslo', (NOW() AT TIME ZONE 'Europe/Oslo')::date)::timestamptz
+          AND ad.actual_departure_time < timezone('Europe/Oslo', (NOW() AT TIME ZONE 'Europe/Oslo')::date + interval '1 day')::timestamptz
+          ${routeFilter}
+        ORDER BY pd.planned_departure_time
+      `;
+      queryParams = [];
+    }
     
     const client = await pool.connect();
     let result;
+    let currentDateStr: string | undefined;
+    
     try {
-      result = await client.query(query, [dateParam]);
+      // If no date provided, get current date in Europe/Oslo timezone first
+      if (!selectedDate) {
+        const dateQuery = `SELECT (NOW() AT TIME ZONE 'Europe/Oslo')::date as current_date`;
+        const dateResult = await client.query(dateQuery);
+        currentDateStr = dateResult.rows[0].current_date.toISOString().split('T')[0];
+      }
+      
+      result = await client.query(query, queryParams);
     } finally {
       // Always release the connection, even if query fails
       client.release();
@@ -109,10 +126,18 @@ export async function GET(request: NextRequest) {
       isCancelled: row.is_cancelled || false,
     }));
     
-    // Calculate date range for response (using PostgreSQL timezone conversion)
-    // We'll use the dateParam and let the client know the range
-    const dateRangeStart = `${dateParam}T00:00:00+01:00`; // Approximate for response
-    const dateRangeEnd = new Date(new Date(dateRangeStart).getTime() + 24 * 60 * 60 * 1000).toISOString();
+    // Calculate date range for response
+    let dateRangeStart: string;
+    let dateRangeEnd: string;
+    
+    if (selectedDate) {
+      dateRangeStart = `${selectedDate}T00:00:00+01:00`; // Approximate for response
+      dateRangeEnd = new Date(new Date(dateRangeStart).getTime() + 24 * 60 * 60 * 1000).toISOString();
+    } else {
+      // Use the date we got from PostgreSQL
+      dateRangeStart = `${currentDateStr}T00:00:00+01:00`; // Approximate for response
+      dateRangeEnd = new Date(new Date(dateRangeStart).getTime() + 24 * 60 * 60 * 1000).toISOString();
+    }
     
     return NextResponse.json({
       departures,
