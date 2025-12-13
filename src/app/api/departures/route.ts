@@ -22,6 +22,7 @@ if (missingVars.length > 0) {
   );
 }
 
+// Database connection pool
 const pool = new Pool({
   host: process.env.DB_HOST!,
   port: parseInt(process.env.DB_PORT || '5432', 10),
