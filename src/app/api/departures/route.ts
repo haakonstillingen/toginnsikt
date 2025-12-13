@@ -44,35 +44,22 @@ export async function GET(request: NextRequest) {
     }
     
     const now = new Date();
-    let startDate: Date;
-    let endDate: Date;
     
     // Last 24 hours: use selected date or current date
-    // Fix: Parse date string correctly to avoid timezone issues
-    // When parsing "YYYY-MM-DD", we want midnight in Europe/Oslo timezone
-    // We create an ISO string with explicit timezone offset to ensure correct parsing
-    // Europe/Oslo is UTC+1 (winter) or UTC+2 (summer), we use UTC+1 as base
-    // PostgreSQL will handle the timezone conversion correctly when querying
+    // Fix: Use PostgreSQL's timezone handling to properly account for DST
+    // We'll construct the date range using PostgreSQL's timezone() function
+    // to ensure correct handling of Europe/Oslo timezone (UTC+1/UTC+2)
+    let dateParam: string;
     if (selectedDate) {
-      // Parse date components from YYYY-MM-DD string
-      const [year, month, day] = selectedDate.split('-').map(Number);
-      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      // Create ISO string with Europe/Oslo timezone offset (UTC+1)
-      // PostgreSQL will handle DST adjustments when converting timestamps
-      const isoString = `${dateStr}T00:00:00+01:00`;
-      startDate = new Date(isoString);
-      endDate = new Date(new Date(isoString).getTime() + 24 * 60 * 60 * 1000);
+      // Use the selected date string directly
+      dateParam = selectedDate;
     } else {
-      // Default: 00:00 of current day to 00:00 of next day
-      // Get current date components (in server's local timezone)
-      const year = now.getFullYear();
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const day = String(now.getDate()).padStart(2, '0');
-      const dateStr = `${year}-${month}-${day}`;
-      // Create ISO string with Europe/Oslo timezone offset
-      const isoString = `${dateStr}T00:00:00+01:00`;
-      startDate = new Date(isoString);
-      endDate = new Date(new Date(isoString).getTime() + 24 * 60 * 60 * 1000);
+      // Get current date in YYYY-MM-DD format
+      // Use UTC to avoid timezone issues, then let PostgreSQL handle conversion
+      const year = now.getUTCFullYear();
+      const month = String(now.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(now.getUTCDate()).padStart(2, '0');
+      dateParam = `${year}-${month}-${day}`;
     }
     
     // Build route filter
@@ -86,6 +73,8 @@ export async function GET(request: NextRequest) {
     }
     
     // Query individual departures with all required fields
+    // Use PostgreSQL's timezone() function to construct date range in Europe/Oslo timezone
+    // This properly handles DST (UTC+1 in winter, UTC+2 in summer)
     const query = `
       SELECT 
         pd.line_code,
@@ -96,19 +85,20 @@ export async function GET(request: NextRequest) {
       FROM actual_departures ad
       JOIN planned_departures pd ON ad.planned_departure_id = pd.id
       JOIN commute_routes cr ON pd.route_id = cr.id
-      WHERE ad.actual_departure_time >= $1 
-        AND ad.actual_departure_time < $2
+      WHERE ad.actual_departure_time >= timezone('Europe/Oslo', $1::date)::timestamptz
+        AND ad.actual_departure_time < timezone('Europe/Oslo', $1::date + interval '1 day')::timestamptz
         ${routeFilter}
       ORDER BY pd.planned_departure_time
     `;
     
     const client = await pool.connect();
-    const result = await client.query(query, [
-      startDate.toISOString(),
-      endDate.toISOString()
-    ]);
-    
-    client.release();
+    let result;
+    try {
+      result = await client.query(query, [dateParam]);
+    } finally {
+      // Always release the connection, even if query fails
+      client.release();
+    }
     
     // Process data to format for frontend
     const departures = result.rows.map(row => ({
@@ -119,14 +109,19 @@ export async function GET(request: NextRequest) {
       isCancelled: row.is_cancelled || false,
     }));
     
+    // Calculate date range for response (using PostgreSQL timezone conversion)
+    // We'll use the dateParam and let the client know the range
+    const dateRangeStart = `${dateParam}T00:00:00+01:00`; // Approximate for response
+    const dateRangeEnd = new Date(new Date(dateRangeStart).getTime() + 24 * 60 * 60 * 1000).toISOString();
+    
     return NextResponse.json({
       departures,
       count: departures.length,
       period,
       route,
       dateRange: {
-        start: startDate.toISOString(),
-        end: endDate.toISOString()
+        start: dateRangeStart,
+        end: dateRangeEnd
       }
     });
     
