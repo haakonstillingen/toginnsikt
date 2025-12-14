@@ -175,6 +175,7 @@ export function DeparturesTable() {
       if (selectedPeriod !== "1d") {
         setData([]);
         setLoading(false);
+        setError(null); // Clear error state when switching away from 1d period
         return;
       }
 
