@@ -2,6 +2,7 @@
   "name": "toginnsikt-dashboard",
   "version": "0.1.0",
   "private": true,
+  "description": "Toginnsikt dashboard for L2 line delay analysis",
   "scripts": {
     "dev": "next dev",
     "build": "next build --turbopack",
