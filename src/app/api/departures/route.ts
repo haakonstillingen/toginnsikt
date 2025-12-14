@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
-/**
- * API endpoint for fetching individual departure records
- * Supports 24-hour period queries with Europe/Oslo timezone handling
- */
-
 // Validate required environment variables
 const requiredEnvVars = {
   DB_HOST: process.env.DB_HOST,
@@ -27,6 +22,7 @@ if (missingVars.length > 0) {
   );
 }
 
+// Database connection pool
 const pool = new Pool({
   host: process.env.DB_HOST!,
   port: parseInt(process.env.DB_PORT || '5432', 10),
