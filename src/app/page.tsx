@@ -5,6 +5,7 @@ import { BarChart3, Clock, AlertTriangle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useFilters } from "@/contexts/filter-context";
 import { DelayChart } from "@/components/delay-chart";
+import { DeparturesTable } from "@/components/departures-table";
 
 export default function Home() {
   // Get filter state from context
@@ -159,8 +160,13 @@ export default function Home() {
       </div>
 
       {/* Chart Section */}
-      <div className="w-full">
+      <div className="w-full mb-8">
         <DelayChart />
+      </div>
+
+      {/* Data Table Section - Only visible when period is 1d */}
+      <div className="w-full">
+        <DeparturesTable />
       </div>
     </main>
   )
